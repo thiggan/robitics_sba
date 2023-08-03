@@ -10,11 +10,6 @@ void setup() {
 
 }
 
-  void stop(int duration) {
-  motors.setLeftSpeed(0);
-  motors.setRightSpeed(0);
-  delay(duration);
-}
 
 void circle(){
  //having the right motor at half the makes the robot move in a circular pattern
@@ -26,6 +21,5 @@ void loop() {
 
  circle();
 
- stop(500);
 
 }
