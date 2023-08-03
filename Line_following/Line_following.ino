@@ -27,38 +27,10 @@ const int MAX_SPEED = 200;
 
 void setup()
 {
-  
-
-  // Initialize the reflectance sensors module
+   // Initialize the reflectance sensors module
   reflectanceSensors.init();
 
-  
-
-  // Turn on LED to indicate we are in calibration mode
-  pinMode(13, OUTPUT);
-  digitalWrite(13, HIGH);
-
-  // Wait 1 second and then begin automatic sensor calibration
-  // by rotating in place to sweep the sensors over the line
-  delay(1000);
-  int i;
-  for(i = 0; i < 80; i++)
-  {
-    if ((i > 10 && i <= 30) || (i > 50 && i <= 70))
-      motors.setSpeeds(-100, 100);
-    else
-      motors.setSpeeds(100, -100);
-      
-    reflectanceSensors.calibrate();
-
-    // Since our counter runs to 80, the total delay will be
-    // 80*20 = 1600 ms.
-    delay(20);
-  }
-  motors.setSpeeds(0,0);
-
-  // Turn off LED to indicate we are through with calibration
-  digitalWrite(13, LOW);
+  calibration();
   
 }
 
@@ -106,3 +78,47 @@ void loop()
 
   motors.setSpeeds(m1Speed, m2Speed);
 }
+
+void calibration()
+{
+  // Turn on LED to indicate we are in calibration mode
+  pinMode(13, OUTPUT);
+  digitalWrite(13, HIGH);
+
+  // Wait 1 second and then begin automatic sensor calibration
+  // by rotating in place to sweep the sensors over the line
+  delay(1000);
+  int i;
+  for(i = 0; i < 80; i++)
+  {
+    if ((i > 10 && i <= 30) || (i > 50 && i <= 70))
+      motors.setSpeeds(-100, 100);
+    else
+      motors.setSpeeds(100, -100);
+      
+    reflectanceSensors.calibrate();
+
+    // Since our counter runs to 80, the total delay will be
+    // 80*20 = 1600 ms.
+    delay(20);
+  }
+  motors.setSpeeds(0,0);
+
+  // Turn off LED to indicate we are through with calibration
+  digitalWrite(13, LOW); 
+
+}
+
+void forward(int duration)
+{
+  motors.setLeftSpeed(200);   
+  motors.setRightSpeed(200);  
+  delay(duration);
+
+}
+
+void lost_line()
+{
+
+}
+
