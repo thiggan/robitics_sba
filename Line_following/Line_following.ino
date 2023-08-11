@@ -1,40 +1,78 @@
-/*
- * Demo line-following code for the Pololu Zumo Robot
- *
- * This code will follow a black line on a white background, using a
- * PID-based algorithm.  It works decently on courses with smooth, 6"
- * radius curves and has been tested with Zumos using 30:1 HP and
- * 75:1 HP motors.  Modifications might be required for it to work
- * well on different courses or with different motors.
- *
- * https://www.pololu.com/catalog/product/2506
- * https://www.pololu.com
- * https://forum.pololu.com
- */
-
 #include <Wire.h>
 #include <ZumoShield.h>
+
+// Tracy MacAulay-Higgan
+//
+//
 
 ZumoReflectanceSensorArray reflectanceSensors;
 ZumoMotors motors;
 int lastError = 0;
 
-// This is the maximum speed the motors will be allowed to turn.
-// (400 lets the motors go at top speed; decrease to impose a speed limit)
-const int MAX_SPEED = 200;
+const int TOP_SPEED = 80;
+const int LINE_THRESHOLD = 500;
+const int SEARCH_DURATION = 200;
+
+enum RobotState
+{
+  FOLLOW_PATH,
+  LOST_PATH,
+  FIND_PATH
+};
+
+RobotState currentState = FIND_PATH;
 
 void setup()
 {
-  // Initialize the reflectance sensors module
   reflectanceSensors.init();
-
   calibration();
+}
+
+bool hasLostLine(unsigned int sensors[6])
+{
+  if (sensors[6] < LINE_THRESHOLD)
+  {
+    return true; // Robot has lost the line
+  }
+  else
+  {
+    return false; // Robot has not lost the line
+  }
 }
 
 void loop()
 {
+  unsigned int sensors[6];
+  int position = reflectanceSensors.readLine(sensors);
 
-  follow();
+  switch (currentState)
+  {
+  case FOLLOW_PATH:
+    follow();
+    if (hasLostLine(sensors))
+    {
+      currentState = LOST_PATH;
+    }
+    break;
+
+  case LOST_PATH:
+    motors.setSpeeds(0, 0);
+    currentState = FIND_PATH;
+    break;
+
+  case FIND_PATH:
+    searchForLine();
+
+    if (hasLostLine(sensors))
+    {
+      currentState = LOST_PATH;
+    }
+    else
+    {
+      currentState = FOLLOW_PATH;
+    }
+    break;
+  }
 }
 
 void calibration()
@@ -92,47 +130,54 @@ void follow()
 
   // Get individual motor speeds.  The sign of speedDifference
   // determines if the robot turns left or right.
-  int m1Speed = MAX_SPEED + speedDifference;
-  int m2Speed = MAX_SPEED - speedDifference;
+  int m1Speed = TOP_SPEED + speedDifference;
+  int m2Speed = TOP_SPEED - speedDifference;
 
-  // Here we constrain our motor speeds to be between 0 and MAX_SPEED.
-  // Generally speaking, one motor will always be turning at MAX_SPEED
-  // and the other will be at MAX_SPEED-|speedDifference| if that is positive,
+  // Here we constrain our motor speeds to be between 0 and TOP_SPEED.
+  // Generally speaking, one motor will always be turning at TOP_SPEED
+  // and the other will be at TOP_SPEED-|speedDifference| if that is positive,
   // else it will be stationary.  For some applications, you might want to
   // allow the motor speed to go negative so that it can spin in reverse.
   if (m1Speed < 0)
     m1Speed = 0;
   if (m2Speed < 0)
     m2Speed = 0;
-  if (m1Speed > MAX_SPEED)
-    m1Speed = MAX_SPEED;
-  if (m2Speed > MAX_SPEED)
-    m2Speed = MAX_SPEED;
+  if (m1Speed > TOP_SPEED)
+    m1Speed = TOP_SPEED;
+  if (m2Speed > TOP_SPEED)
+    m2Speed = TOP_SPEED;
 
   motors.setSpeeds(m1Speed, m2Speed);
 }
 
-void stop()
+void searchForLine()
 {
-  motors.setSpeeds(0, 0);
+  digitalWrite(13, HIGH);
+
+  turnLeft(250);
+
+  straight(250);
+
+  digitalWrite(13, LOW);
 }
 
-void moveForward(int duration)
+void straight(int duration)
 {
-  motors.setSpeeds(200, 200);
+  motors.setLeftSpeed(TOP_SPEED);
+  motors.setRightSpeed(TOP_SPEED);
   delay(duration);
 }
 
 void turnLeft(int duration)
 {
-  motors.setLeftSpeed(-200);
-  motors.setRightSpeed(200);
+  motors.setLeftSpeed(-TOP_SPEED);
+  motors.setRightSpeed(TOP_SPEED);
   delay(duration);
 }
 
 void turnRight(int duration)
 {
-  motors.setLeftSpeed(200);
-  motors.setRightSpeed(-200);
+  motors.setLeftSpeed(TOP_SPEED);
+  motors.setRightSpeed(-TOP_SPEED);
   delay(duration);
 }
