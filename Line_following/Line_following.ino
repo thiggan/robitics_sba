@@ -15,7 +15,6 @@
 #include <Wire.h>
 #include <ZumoShield.h>
 
-
 ZumoReflectanceSensorArray reflectanceSensors;
 ZumoMotors motors;
 int lastError = 0;
@@ -24,21 +23,18 @@ int lastError = 0;
 // (400 lets the motors go at top speed; decrease to impose a speed limit)
 const int MAX_SPEED = 200;
 
-
 void setup()
 {
-   // Initialize the reflectance sensors module
+  // Initialize the reflectance sensors module
   reflectanceSensors.init();
 
   calibration();
-  
 }
 
 void loop()
 {
 
   follow();
-  
 }
 
 void calibration()
@@ -51,30 +47,29 @@ void calibration()
   // by rotating in place to sweep the sensors over the line
   delay(1000);
   int i;
-  for(i = 0; i < 80; i++)
+  for (i = 0; i < 80; i++)
   {
     if ((i > 10 && i <= 30) || (i > 50 && i <= 70))
       motors.setSpeeds(-100, 100);
     else
       motors.setSpeeds(100, -100);
-      
+
     reflectanceSensors.calibrate();
 
     // Since our counter runs to 80, the total delay will be
     // 80*20 = 1600 ms.
     delay(20);
   }
-  motors.setSpeeds(0,0);
+  motors.setSpeeds(0, 0);
 
   // Turn off LED to indicate we are through with calibration
-  digitalWrite(13, LOW); 
-
+  digitalWrite(13, LOW);
 }
 
 void follow()
 {
- 
- unsigned int sensors[6];
+
+  unsigned int sensors[6];
 
   // Get the position of the line.  Note that we *must* provide the "sensors"
   // argument to readLine() here, even though we are not interested in the
@@ -115,12 +110,29 @@ void follow()
     m2Speed = MAX_SPEED;
 
   motors.setSpeeds(m1Speed, m2Speed);
-
-
 }
 
-void lost_line()
+void stop()
 {
-
+  motors.setSpeeds(0, 0);
 }
 
+void moveForward(int duration)
+{
+  motors.setSpeeds(200, 200);
+  delay(duration);
+}
+
+void turnLeft(int duration)
+{
+  motors.setLeftSpeed(-200);
+  motors.setRightSpeed(200);
+  delay(duration);
+}
+
+void turnRight(int duration)
+{
+  motors.setLeftSpeed(200);
+  motors.setRightSpeed(-200);
+  delay(duration);
+}
