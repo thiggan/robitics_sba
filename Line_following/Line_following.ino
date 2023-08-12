@@ -9,9 +9,9 @@ ZumoReflectanceSensorArray reflectanceSensors;
 ZumoMotors motors;
 int lastError = 0;
 
-const int TOP_SPEED = 80;
+const int TOP_SPEED = 100;
 const int LINE_THRESHOLD = 500;
-const int SEARCH_DURATION = 200;
+const int SEARCH_DURATION = 1000;
 
 enum RobotState
 {
@@ -89,11 +89,11 @@ void calibration()
   {
     if ((i > 10 && i <= 30) || (i > 50 && i <= 70))
     {
-      motors.setSpeeds(-100, 100);
+      motors.setSpeeds(TOP_SPEED, -TOP_SPEED);
     }
     else
     {
-      motors.setSpeeds(100, -100);
+      motors.setSpeeds(-TOP_SPEED, TOP_SPEED);
     }
 
     reflectanceSensors.calibrate();
@@ -158,11 +158,14 @@ void searchForLine()
 {
   digitalWrite(13, HIGH);
 
-  turnLeft(250);
+  // turnLeft(250);
+  // straight(250);
+  // turnRight(250);
+  // straight(250);
 
-  straight(250);
+  reverse(TOP_SPEED);
 
-  digitalWrite(13, LOW);
+   digitalWrite(13, LOW);
 }
 
 void straight(int duration)
@@ -172,16 +175,23 @@ void straight(int duration)
   delay(duration);
 }
 
-void turnLeft(int duration)
+void reverse(int duration)
 {
   motors.setLeftSpeed(-TOP_SPEED);
-  motors.setRightSpeed(TOP_SPEED);
+  motors.setRightSpeed(-TOP_SPEED);
+  delay(duration);
+}
+
+void turnLeft(int duration)
+{
+  motors.setLeftSpeed(TOP_SPEED);
+  motors.setRightSpeed(-TOP_SPEED);
   delay(duration);
 }
 
 void turnRight(int duration)
 {
-  motors.setLeftSpeed(TOP_SPEED);
-  motors.setRightSpeed(-TOP_SPEED);
+  motors.setLeftSpeed(-TOP_SPEED);
+  motors.setRightSpeed(TOP_SPEED);
   delay(duration);
 }
