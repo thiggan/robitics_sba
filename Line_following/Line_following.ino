@@ -127,15 +127,12 @@ void follow()
   lastError = error;
 
   //individual motor speeds + turns left - turns right
+  
   int m1Speed = TOP_SPEED + speedDifference;
   int m2Speed = TOP_SPEED - speedDifference;
 
-  // Here we constrain our motor speeds to be between 0 and TOP_SPEED.
-  // Generally speaking, one motor will always be turning at TOP_SPEED
-  // and the other will be at TOP_SPEED-|speedDifference| if that is positive,
-  // else it will be stationary.  For some applications, you might want to
-  // allow the motor speed to go negative so that it can spin in reverse.
-
+ 
+// Setting motor speeds and setting foward and backwards
 
   if (m1Speed < -TOP_SPEED)
     m1Speed = -TOP_SPEED;
