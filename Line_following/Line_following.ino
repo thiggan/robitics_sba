@@ -1,9 +1,11 @@
-#include <Wire.h>
-#include <ZumoShield.h>
-
 // Tracy MacAulay-Higgan
 //
 //
+
+#include <Wire.h>
+#include <ZumoShield.h>
+
+
 
 ZumoReflectanceSensorArray reflectanceSensors;
 ZumoMotors motors;
@@ -16,7 +18,6 @@ const int SEARCH_DURATION = 1000;
 enum RobotState
 {
   FOLLOW_PATH,
-  LOST_PATH,
   FIND_PATH
 };
 
@@ -51,13 +52,8 @@ void loop()
     follow();
     if (hasLostLine(sensors))
     {
-      currentState = LOST_PATH;
+      currentState = FIND_PATH;
     }
-    break;
-
-  case LOST_PATH:
-    motors.setSpeeds(0, 0);
-    currentState = FIND_PATH;
     break;
 
   case FIND_PATH:
@@ -65,7 +61,7 @@ void loop()
 
     if (hasLostLine(sensors))
     {
-      currentState = LOST_PATH;
+      currentState = FIND_PATH;
     }
     else
     {
@@ -116,6 +112,7 @@ void follow()
   // Get the position of the line.  Note that we *must* provide the "sensors"
   // argument to readLine() here, even though we are not interested in the
   // individual sensor readings
+  // position of line and sensors
   int position = reflectanceSensors.readLine(sensors);
 
   // Our "error" is how far we are away from the center of the line, which
