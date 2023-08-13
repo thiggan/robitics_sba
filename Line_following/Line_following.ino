@@ -54,6 +54,10 @@ void loop()
     {
       currentState = FIND_PATH;
     }
+    else
+    {
+      currentState = FOLLOW_PATH;
+    }
     break;
 
   case FIND_PATH:
@@ -73,15 +77,15 @@ void loop()
 
 void calibration()
 {
-  // Turn on LED to indicate we are in calibration mode
+  // LED indicates calibration is happening
   pinMode(13, OUTPUT);
   digitalWrite(13, HIGH);
 
-  // Wait 1 second and then begin automatic sensor calibration
-  // by rotating in place to sweep the sensors over the line
+  // Wait for set time to begin calibration in this case it is 1 second
+ 
   delay(1000);
   int i;
-  for (i = 0; i < 80; i++)
+  for (i = 0; i < 150; i++)
   {
     if ((i > 10 && i <= 30) || (i > 50 && i <= 70))
     {
@@ -94,8 +98,8 @@ void calibration()
 
     reflectanceSensors.calibrate();
 
-    // Since our counter runs to 80, the total delay will be
-    // 80*20 = 1600 ms.
+    // Since our counter runs to 100, the total delay will be
+    // 100*20 = 2000 ms.
     delay(20);
   }
   motors.setSpeeds(0, 0);
@@ -109,28 +113,20 @@ void follow()
 
   unsigned int sensors[6];
 
-  // Get the position of the line.  Note that we *must* provide the "sensors"
-  // argument to readLine() here, even though we are not interested in the
-  // individual sensor readings
+
   // position of line and sensors
   int position = reflectanceSensors.readLine(sensors);
 
-  // Our "error" is how far we are away from the center of the line, which
-  // corresponds to position 2500.
+
+  // this is how far away from the centre of the line the robot is 
   int error = position - 2500;
 
-  // Get motor speed difference using proportional and derivative PID terms
-  // (the integral term is generally not very useful for line following).
-  // Here we are using a proportional constant of 1/4 and a derivative
-  // constant of 6, which should work decently for many Zumo motor choices.
-  // You probably want to use trial and error to tune these constants for
-  // your particular Zumo and line course.
+  // motor speed difference for the motors 
   int speedDifference = error / 4 + 6 * (error - lastError);
 
   lastError = error;
 
-  // Get individual motor speeds.  The sign of speedDifference
-  // determines if the robot turns left or right.
+  //individual motor speeds + turns left - turns right
   int m1Speed = TOP_SPEED + speedDifference;
   int m2Speed = TOP_SPEED - speedDifference;
 
@@ -139,10 +135,12 @@ void follow()
   // and the other will be at TOP_SPEED-|speedDifference| if that is positive,
   // else it will be stationary.  For some applications, you might want to
   // allow the motor speed to go negative so that it can spin in reverse.
-  if (m1Speed < 0)
-    m1Speed = 0;
-  if (m2Speed < 0)
-    m2Speed = 0;
+
+
+  if (m1Speed < -TOP_SPEED)
+    m1Speed = -TOP_SPEED;
+  if (m2Speed < -TOP_SPEED)
+    m2Speed = -TOP_SPEED;
   if (m1Speed > TOP_SPEED)
     m1Speed = TOP_SPEED;
   if (m2Speed > TOP_SPEED)
@@ -160,7 +158,7 @@ void searchForLine()
   // turnRight(250);
   // straight(250);
 
-  reverse(TOP_SPEED);
+  reverse(1000);
 
    digitalWrite(13, LOW);
 }
@@ -181,14 +179,14 @@ void reverse(int duration)
 
 void turnLeft(int duration)
 {
-  motors.setLeftSpeed(TOP_SPEED);
-  motors.setRightSpeed(-TOP_SPEED);
+  motors.setLeftSpeed(-TOP_SPEED);
+  motors.setRightSpeed(TOP_SPEED);
   delay(duration);
 }
 
 void turnRight(int duration)
 {
-  motors.setLeftSpeed(-TOP_SPEED);
-  motors.setRightSpeed(TOP_SPEED);
+  motors.setLeftSpeed(TOP_SPEED);
+  motors.setRightSpeed(-TOP_SPEED);
   delay(duration);
 }
