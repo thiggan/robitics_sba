@@ -10,7 +10,7 @@ ZumoMotors motors;
 int lastError = 0;
 
 const int TOP_SPEED = 100;
-const int LINE_THRESHOLD = 100;
+const int LINE_THRESHOLD = 60;
 const int SEARCH_DURATION = 1000;
 
 enum RobotState
@@ -19,7 +19,7 @@ enum RobotState
   FIND_PATH
 };
 
-RobotState currentState = FIND_PATH;
+RobotState currentState = FOLLOW_PATH;
 
 void setup()
 {
@@ -118,15 +118,15 @@ void calibration()
 
   delay(1000);
   int i;
-  for (i = 0; i < 150; i++)
+  for (i = 0; i < 80; i++)
   {
     if ((i > 10 && i <= 30) || (i > 50 && i <= 70))
     {
-      motors.setSpeeds(TOP_SPEED, -TOP_SPEED);
+      motors.setSpeeds(-TOP_SPEED, TOP_SPEED);
     }
     else
     {
-      motors.setSpeeds(-TOP_SPEED, TOP_SPEED);
+      motors.setSpeeds(TOP_SPEED, -TOP_SPEED);
     }
 
     reflectanceSensors.calibrate();
@@ -185,7 +185,7 @@ void searchForLine()
   // turnRight(250);
   // straight(250);
 
-  reverse(1000);
+  reverse(200);
 
   digitalWrite(13, LOW);
 }
