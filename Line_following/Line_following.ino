@@ -9,7 +9,7 @@ ZumoReflectanceSensorArray reflectanceSensors;
 ZumoMotors motors;
 int lastError = 0;
 
-const int TOP_SPEED = 100;
+const int TOP_SPEED = 200;
 const int LINE_THRESHOLD = 60;
 const int SEARCH_DURATION = 1000;
 
@@ -185,7 +185,7 @@ void searchForLine()
   // turnRight(250);
   // straight(250);
 
-  reverse(200);
+  reverse(100);
 
   digitalWrite(13, LOW);
 }
