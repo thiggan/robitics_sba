@@ -9,9 +9,9 @@ ZumoReflectanceSensorArray reflectanceSensors;
 ZumoMotors motors;
 int lastError = 0;
 
-const int TOP_SPEED = 200;
+const int TOP_SPEED = 250;
 const int LINE_THRESHOLD = 60;
-const int SEARCH_DURATION = 1000;
+const int SEARCH_DURATION = 500;
 
 enum RobotState
 {
@@ -45,19 +45,21 @@ bool hasLostLine(unsigned int sensors[6])
   }
 }
 
+//tracking the sample times for the data, 
+
 void output(unsigned int sensors[6])
 {
-  static uint16_t lastSampleTime = 0;
+  static uint16_t priorTestMeasure = 0;
 
-  if ((uint16_t)(millis() - lastSampleTime) >= 100)
+  if ((uint16_t)(millis() - priorTestMeasure) >= 100)
   {
-    lastSampleTime = millis();
+    priorTestMeasure = millis();
 
     // // Read the reflectance sensors.
     // uint16_t sensorValues[6]
     // reflectanceSensors.read(sensorValues, QTR_EMITTERS_ON);
 
-    // Send the results to the serial monitor.
+    // Send the results to the serial monitor, an out put in 4 digit lots to make it easier to read - it has an e and the end to signify the end of that piece of data. The number could be changed to have bigger or smaller numbers too but 4 is good to read, it also formats the line and adds a new line character.
     char buffer[80];
     sprintf(buffer, "%4d %4d %4d %4d %4d %4d %c\n",
       sensors[0],
@@ -72,6 +74,7 @@ void output(unsigned int sensors[6])
   }
 }
 
+// when it starts is on follow path-driving then when is loses the line is goes into find path/serach for line this is reversing until it finds the line again. 
 void loop()
 {
   unsigned int sensors[6];
@@ -108,6 +111,8 @@ void loop()
   }
 }
 
+
+// this is some code I borrowed form the example code. 
 void calibration()
 {
   // LED indicates calibration is happening
@@ -131,8 +136,8 @@ void calibration()
 
     reflectanceSensors.calibrate();
 
-    // Since our counter runs to 100, the total delay will be
-    // 100*20 = 2000 ms.
+    // Since our counter runs to 80, the total delay will be
+    // 80*20 = 1600 ms.
     delay(20);
   }
   motors.setSpeeds(0, 0);
@@ -179,11 +184,6 @@ void follow()
 void searchForLine()
 {
   digitalWrite(13, HIGH);
-
-  // turnLeft(250);
-  // straight(250);
-  // turnRight(250);
-  // straight(250);
 
   reverse(100);
 
