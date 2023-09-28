@@ -11,13 +11,13 @@ ZumoMotors motors;
 // Define LDR pin and motor pins
 
 
-  const int left = A5;
-  const int right = A4;
+  const int left = A4;
+  const int right = A5;
 
-  int value;
-  int value1;
+  int leftEyeValue;
+  int rightEyeValue;
 
-const int lightThreshold = 60;
+const int lightThreshold = 20;
 const int TOP_SPEED = 250;
 
 void straight(int duration)
@@ -58,17 +58,19 @@ void setup() {
 
 
 void loop() {
-  // Read the LDR sensor value
-  int value = analogRead(left);
-  Serial.println(value);
+  // Read the LDR sensor leftEyeValue
+  int leftEyeValue = analogRead(left);
+  Serial.println(leftEyeValue);
   delay(200);
-  int value1 = analogRead(right);
-  Serial.println(value1);
+  int rightEyeValue = analogRead(right);
+  Serial.println(rightEyeValue);
   delay(200);
 
   // Check if light is detected
-  if (value > lightThreshold || value1 > lightThreshold) {
-    straight(100); // Move forward towards the light
+  if (leftEyeValue > lightThreshold || rightEyeValue > lightThreshold) {
+    // straight(100); // Move forward towards the light
+
+    motors.setSpeeds(leftEyeValue *2, rightEyeValue *2);
   } else {
     // // No light detected, make a decision (you can customize this logic)
     // int randomDecision = random(4); // Generate a random decision (0-3)
