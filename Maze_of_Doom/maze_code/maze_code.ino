@@ -7,6 +7,15 @@
 
 ZumoMotors motors;
 
+enum States {
+  FOLLOW,
+  AVOID_LEFT,
+  AVOID_RIGHT,
+  SEARCH
+};
+
+States currentState = SEARCH;
+
 
 // Define LDR pin and motor pins
 
@@ -20,33 +29,6 @@ ZumoMotors motors;
 const int lightThreshold = 20;
 const int TOP_SPEED = 250;
 
-void straight(int duration)
-{
-  motors.setLeftSpeed(TOP_SPEED);
-  motors.setRightSpeed(TOP_SPEED);
-  delay(duration);
-}
-
-void reverse(int duration)
-{
-  motors.setLeftSpeed(-TOP_SPEED);
-  motors.setRightSpeed(-TOP_SPEED);
-  delay(duration);
-}
-
-void turnLeft(int duration)
-{
-  motors.setLeftSpeed(-TOP_SPEED);
-  motors.setRightSpeed(TOP_SPEED);
-  delay(duration);
-}
-
-void turnRight(int duration)
-{
-  motors.setLeftSpeed(TOP_SPEED);
-  motors.setRightSpeed(-TOP_SPEED);
-  delay(duration);
-}
 
 void setup() {
   Serial.begin(9600);
@@ -66,31 +48,66 @@ void loop() {
   Serial.println(rightEyeValue);
   delay(200);
 
-  // Check if light is detected
   if (leftEyeValue > lightThreshold || rightEyeValue > lightThreshold) {
-    // straight(100); // Move forward towards the light
-
-    motors.setSpeeds(leftEyeValue *2, rightEyeValue *2);
+    currentState = FOLLOW;
   } else {
     // // No light detected, make a decision (you can customize this logic)
-    // int randomDecision = random(4); // Generate a random decision (0-3)
-    
-    // // Perform different actions based on the random decision
-    // switch (randomDecision) {
-    //   case 0:
-    //     left1(); // Turn left
-    //     break;
-    //   case 1:
-    //     right2(); // Turn right
-    //     break;
-    //   case 2:
-    //     backward(); // Move backward
-    //     break;
-    //   default:
-    //     forward(); // Default to moving forward
-    //     break;
-    // }
+    currentState = SEARCH;
+  }
+
+
+  switch (currentState)
+  {
+  case FOLLOW:
+    follow(leftEyeValue, rightEyeValue);
+    break;
+
+  case SEARCH:
+    searchForLine();
+    break;
+
+  case AVOID_LEFT:
+    break;
+  case AVOID_RIGHT:
+    break;
   }
 }
 
+void follow(int leftEyeValue, int rightEyeValue)
+{
+  motors.setSpeeds(leftEyeValue *2, rightEyeValue *2);
+}
+
+void searchForLine()
+{
+  // LED indicates calibration is happening
+  pinMode(13, OUTPUT);
+  digitalWrite(13, HIGH);
+
+  // Wait for set time to begin calibration in this case it is 1 second
+
+  delay(1000);
+  int i;
+  for (i = 0; i < 80; i++)
+  {
+    if ((i > 10 && i <= 30) || (i > 50 && i <= 70))
+    {
+      motors.setSpeeds(-TOP_SPEED, TOP_SPEED);
+    }
+    else
+    {
+      motors.setSpeeds(TOP_SPEED, -TOP_SPEED);
+    }
+
+    //reflectanceSensors.calibrate();
+
+    // Since our counter runs to 80, the total delay will be
+    // 80*20 = 1600 ms.
+    delay(20);
+  }
+  motors.setSpeeds(0, 0);
+
+  // Turn off LED to indicate we are through with calibration
+  digitalWrite(13, LOW);
+}
 
