@@ -2,91 +2,102 @@
 
 #include <ZumoShield.h>
 
-#include <Arduino.h> 
+#include <Arduino.h>
 
 #include <NewPing.h>
 
-
 ZumoMotors motors;
 
-enum States {
+enum States
+{
   FOLLOW,
   AVOID_LEFT,
   AVOID_RIGHT,
   SEARCH
 };
 
-enum Echo {
-  STOPPED,
-  FIND_LIGHT,
-  AVOIDING_OBSTACLE
-};
+// enum Echo {
+//   STOPPED,
+//   FIND_LIGHT,
+//   AVOIDING_OBSTACLE
+// };
 
-const int duration; 
+const int duration;
 
 States currentState = SEARCH;
 
-
 // Define LDR pin and motor pins
 
+const int left = A4;
+const int right = A5;
+const int leftTrigPin = 6;
+const int leftEchoPin = 12;
+const int rightTrigPin = 1;
+const int rightEchoPin = 2;
 
-  const int left = A4;
-  const int right = A5;
-  const int leftTrigPin = 1;
-  const int leftEchoPin = 2;
-  const int rightTrigPin = 6;
-  const int rightEchoPin = 12;
+int leftEyeValue;
+int rightEyeValue;
 
-  int leftEyeValue;
-  int rightEyeValue;
+NewPing sonar1(leftTrigPin, leftEchoPin, 150);
+NewPing sonar2(rightTrigPin, rightEchoPin, 150);
 
-  NewPing sonar1(leftTrigPin, leftEchoPin, 100);
-  NewPing sonar2(rightTrigPin, rightEchoPin, 100);
-
-  bool isSensorWorking = false;
+bool isSensorWorking = false;
 
 const int lightThreshold = 20;
-const int TOP_SPEED = 100;
+const int echoThreshold = 5;
+const int TOP_SPEED = 150;
 
-
-void setup() {
+void setup()
+{
   Serial.begin(9600);
   // Initialize motor control pins as OUTPUT
   pinMode(left, OUTPUT);
   pinMode(right, OUTPUT);
-  
-
 }
 
-
-void loop() {
+void loop()
+{
   // Read the LDR sensor leftEyeValue
   int leftEyeValue = analogRead(left);
-  Serial.println(leftEyeValue);
-  delay(200);
   int rightEyeValue = analogRead(right);
-  Serial.println(rightEyeValue);
-  delay(200);
 
-   if (leftEyeValue > lightThreshold || rightEyeValue > lightThreshold)
- {
+  int echoLeftValue = sonar1.ping_cm(100);
+  int echoRightValue = sonar2.ping_cm(100);
+
+  Serial.print(" E L: ");
+  Serial.print(echoLeftValue);
+  Serial.print(" L L: ");
+  Serial.print(leftEyeValue);
+  Serial.print(" L R: ");
+  Serial.print(rightEyeValue);
+  Serial.print(" E R: ");
+  Serial.print(echoRightValue);
+
+  if (leftEyeValue > lightThreshold || rightEyeValue > lightThreshold)
+  {
+    Serial.print(" FOLLOW");
     currentState = FOLLOW;
-  } else {
+  }
+  else
+  {
+    Serial.print(" SEARCH");
     // // No light detected
     currentState = SEARCH;
   }
 
-  int distance1 = sonar1.ping_cm();
-  int distance2 = sonar2.ping_cm();
-
-  if(isSensorWorking && distance1 < 20){
+  if (isSensorWorking && echoLeftValue < echoThreshold)
+  {
+    Serial.print(" AVOID_LEFT");
     currentState = AVOID_LEFT;
   }
 
-  if(isSensorWorking && distance2 < 20){
+  if (isSensorWorking && echoRightValue < echoThreshold)
+  {
+    Serial.print(" AVOID_RIGHT");
     currentState = AVOID_RIGHT;
   }
 
+  Serial.println("");
 
   switch (currentState)
   {
@@ -99,17 +110,19 @@ void loop() {
     break;
 
   case AVOID_LEFT:
-    avoidObsticleOnRight();
-    break;
-  case AVOID_RIGHT:
     avoidObsticleOnLeft();
     break;
+  case AVOID_RIGHT:
+    avoidObsticleOnRight();
+    break;
   }
+
+  delay(1000);
 }
 
 void follow(int leftEyeValue, int rightEyeValue)
 {
-  motors.setSpeeds(leftEyeValue *2, rightEyeValue *2);
+  motors.setSpeeds(leftEyeValue * 2, rightEyeValue * 2);
 }
 
 void searchForLine()
@@ -120,7 +133,6 @@ void searchForLine()
 
   // Wait for set time to begin calibration in this case it is 2 seconds
 
-  delay(2000);
   int i;
   for (i = 0; i < 60; i++)
   {
@@ -133,7 +145,7 @@ void searchForLine()
       motors.setSpeeds(TOP_SPEED, -TOP_SPEED);
     }
 
-    //reflectanceSensors.calibrate();
+    // reflectanceSensors.calibrate();
 
     // Since our counter runs to 80, the total delay will be
     // 80*20 = 1600 ms.
@@ -145,17 +157,14 @@ void searchForLine()
   digitalWrite(13, LOW);
 }
 
-void avoidObsticleOnLeft()
+void avoidObsticleOnLeft() // turn right
 {
-    
-    motors.setLeftSpeed(TOP_SPEED);
-  motors.setRightSpeed(-TOP_SPEED);
-  delay(duration);
+  motors.setRightSpeed(TOP_SPEED);
+  motors.setLeftSpeed(-TOP_SPEED);
 }
 
-void avoidObsticleOnRight() {
-
-    motors.setLeftSpeed(TOP_SPEED);
+void avoidObsticleOnRight() // turn left
+{
+  motors.setLeftSpeed(TOP_SPEED);
   motors.setRightSpeed(-TOP_SPEED);
-  delay(duration);
 }
