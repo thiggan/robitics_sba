@@ -2,7 +2,9 @@
 
 #include <ZumoShield.h>
 
-#include <Arduino.h> // Include the Arduino library if you're using an Arduino board
+#include <Arduino.h> 
+
+#include <NewPing.h>
 
 
 ZumoMotors motors;
@@ -14,6 +16,14 @@ enum States {
   SEARCH
 };
 
+enum Echo {
+  STOPPED,
+  FIND_LIGHT,
+  AVOIDING_OBSTACLE
+};
+
+const int duration; 
+
 States currentState = SEARCH;
 
 
@@ -22,12 +32,21 @@ States currentState = SEARCH;
 
   const int left = A4;
   const int right = A5;
+  const int leftTrigPin = 1;
+  const int leftEchoPin = 2;
+  const int rightTrigPin = 6;
+  const int rightEchoPin = 12;
 
   int leftEyeValue;
   int rightEyeValue;
 
+  NewPing sonar1(leftTrigPin, leftEchoPin, 100);
+  NewPing sonar2(rightTrigPin, rightEchoPin, 100);
+
+  bool isSensorWorking = false;
+
 const int lightThreshold = 20;
-const int TOP_SPEED = 250;
+const int TOP_SPEED = 100;
 
 
 void setup() {
@@ -35,6 +54,7 @@ void setup() {
   // Initialize motor control pins as OUTPUT
   pinMode(left, OUTPUT);
   pinMode(right, OUTPUT);
+  
 
 }
 
@@ -48,11 +68,23 @@ void loop() {
   Serial.println(rightEyeValue);
   delay(200);
 
-  if (leftEyeValue > lightThreshold || rightEyeValue > lightThreshold) {
+   if (leftEyeValue > lightThreshold || rightEyeValue > lightThreshold)
+ {
     currentState = FOLLOW;
   } else {
-    // // No light detected, make a decision (you can customize this logic)
+    // // No light detected
     currentState = SEARCH;
+  }
+
+  int distance1 = sonar1.ping_cm();
+  int distance2 = sonar2.ping_cm();
+
+  if(isSensorWorking && distance1 < 20){
+    currentState = AVOID_LEFT;
+  }
+
+  if(isSensorWorking && distance2 < 20){
+    currentState = AVOID_RIGHT;
   }
 
 
@@ -67,8 +99,10 @@ void loop() {
     break;
 
   case AVOID_LEFT:
+    avoidObsticleOnRight();
     break;
   case AVOID_RIGHT:
+    avoidObsticleOnLeft();
     break;
   }
 }
@@ -84,11 +118,11 @@ void searchForLine()
   pinMode(13, OUTPUT);
   digitalWrite(13, HIGH);
 
-  // Wait for set time to begin calibration in this case it is 1 second
+  // Wait for set time to begin calibration in this case it is 2 seconds
 
-  delay(1000);
+  delay(2000);
   int i;
-  for (i = 0; i < 80; i++)
+  for (i = 0; i < 60; i++)
   {
     if ((i > 10 && i <= 30) || (i > 50 && i <= 70))
     {
@@ -111,3 +145,17 @@ void searchForLine()
   digitalWrite(13, LOW);
 }
 
+void avoidObsticleOnLeft()
+{
+    
+    motors.setLeftSpeed(TOP_SPEED);
+  motors.setRightSpeed(-TOP_SPEED);
+  delay(duration);
+}
+
+void avoidObsticleOnRight() {
+
+    motors.setLeftSpeed(TOP_SPEED);
+  motors.setRightSpeed(-TOP_SPEED);
+  delay(duration);
+}
