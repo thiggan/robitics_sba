@@ -30,6 +30,7 @@ States currentState = SEARCH;
 
 const int left = A4;
 const int right = A5;
+
 const int leftTrigPin = 6;
 const int leftEchoPin = 12;
 const int rightTrigPin = 1;
@@ -41,7 +42,8 @@ int rightEyeValue;
 NewPing sonar1(leftTrigPin, leftEchoPin, 150);
 NewPing sonar2(rightTrigPin, rightEchoPin, 150);
 
-bool isSensorWorking = false;
+bool isLeftSensorWorking = true;
+bool isRightSensorWorking = true;
 
 const int lightThreshold = 20;
 const int echoThreshold = 5;
@@ -85,13 +87,13 @@ void loop()
     currentState = SEARCH;
   }
 
-  if (isSensorWorking && echoLeftValue < echoThreshold)
+  if (isLeftSensorWorking && echoLeftValue > echoThreshold)
   {
     Serial.print(" AVOID_LEFT");
     currentState = AVOID_LEFT;
   }
 
-  if (isSensorWorking && echoRightValue < echoThreshold)
+  if (isRightSensorWorking && echoRightValue > echoThreshold)
   {
     Serial.print(" AVOID_RIGHT");
     currentState = AVOID_RIGHT;
