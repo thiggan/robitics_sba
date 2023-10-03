@@ -39,8 +39,8 @@ NewPing sonar2(rightTrigPin, rightEchoPin, 100);
 bool isLeftSensorWorking = true;
 bool isRightSensorWorking = true;
 
-const int lightThreshold = 30;
-const int echoThreshold = 20;
+const int lightThreshold = 100;
+const int echoThreshold = 50;
 const int TOP_SPEED = 100;
 
 void setup()
@@ -60,6 +60,7 @@ void loop()
   int echoLeftValue = sonar1.ping_cm(100);
   int echoRightValue = sonar2.ping_cm(100);
 
+ 
   Serial.print(" E L: ");
   Serial.print(echoLeftValue);
   Serial.print(" L L: ");
@@ -69,7 +70,7 @@ void loop()
   Serial.print(" E R: ");
   Serial.print(echoRightValue);
 
-  if (leftEyeValue > lightThreshold || rightEyeValue > lightThreshold)
+  if (leftEyeValue < lightThreshold || rightEyeValue < lightThreshold)
   {
     Serial.print(" FOLLOW");
     currentState = FOLLOW;
@@ -95,8 +96,10 @@ void loop()
 
   Serial.println("");
 
+
   switch (currentState)
   {
+    
   case FOLLOW:
     follow(leftEyeValue, rightEyeValue);
     break;
@@ -106,11 +109,11 @@ void loop()
     break;
 
   case AVOID_LEFT:
-    avoidObsticleOnLeft();
+    avoidObstacleOnLeft();
     break;
 
   case AVOID_RIGHT:
-    avoidObsticleOnRight();
+    avoidObstacleOnRight();
     break;
   }
 
@@ -131,8 +134,8 @@ void searchForLight()
   int i;
   for (i = 0; i < 60; i++)
   {
-    // Since our counter runs to 80, the total delay will be
-    // 80*20 = 1600 ms.
+    // Since our counter runs to 60, the total delay will be
+    // 60*20 = 1200 ms.
     delay(20);
 
     if ((i > 10 && i <= 30) || (i > 50 && i <= 70))
@@ -147,9 +150,9 @@ void searchForLight()
     int leftEyeValue = analogRead(left);
     int rightEyeValue = analogRead(right);
 
-    if (leftEyeValue > lightThreshold || rightEyeValue > lightThreshold)
+    if (leftEyeValue < lightThreshold || rightEyeValue < lightThreshold)
     {
-      Serial.print(" FOUND");
+      Serial.print("FOUND");
       currentState = FOLLOW;
 
       motors.setSpeeds(0, 0);
@@ -167,20 +170,21 @@ void searchForLight()
   digitalWrite(13, LOW);
 }
 
-void avoidObsticleOnLeft() // turn right
-{
-  motors.setSpeeds(-TOP_SPEED, TOP_SPEED);
-  delay(100);
-
-  motors.setSpeeds(TOP_SPEED, TOP_SPEED);
-  delay(1000);
-}
-
-void avoidObsticleOnRight() // turn left // this sensor is not working..... 
+void avoidObstacleOnLeft() // turn right
 {
   motors.setSpeeds(TOP_SPEED, -TOP_SPEED);
   delay(100);
 
-  motors.setSpeeds(TOP_SPEED, TOP_SPEED);
-  delay(1000);
+  motors.setSpeeds(0, 0);
+  delay(500);
 }
+
+void avoidObstacleOnRight() // turn left // this sensor is not working..... 
+{
+  motors.setSpeeds(-TOP_SPEED, TOP_SPEED);
+  delay(100);
+
+  motors.setSpeeds(0, 0);
+  delay(500);
+}
+
