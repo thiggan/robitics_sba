@@ -70,7 +70,7 @@ void loop()
   Serial.print(" E R: ");
   Serial.print(echoRightValue);
 
-  if (leftEyeValue < lightThreshold || rightEyeValue < lightThreshold)
+  if (leftEyeValue > lightThreshold || rightEyeValue > lightThreshold)
   {
     Serial.print(" FOLLOW");
     currentState = FOLLOW;
