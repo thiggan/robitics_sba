@@ -33,13 +33,13 @@ const int rightEchoPin = 2;
 int leftEyeValue;
 int rightEyeValue;
 
-NewPing sonar1(leftTrigPin, leftEchoPin, 100);
-NewPing sonar2(rightTrigPin, rightEchoPin, 100);
+NewPing sonar1(leftTrigPin, leftEchoPin, 50);
+NewPing sonar2(rightTrigPin, rightEchoPin, 50);
 
 bool isLeftSensorWorking = true;
 bool isRightSensorWorking = true;
 
-const int lightThreshold = 30;
+const int lightThreshold = 200;
 const int echoThreshold = 20;
 const int TOP_SPEED = 100;
 
@@ -57,9 +57,10 @@ void loop()
   int leftEyeValue = analogRead(left);
   int rightEyeValue = analogRead(right);
 
-  int echoLeftValue = sonar1.ping_cm(100);
-  int echoRightValue = sonar2.ping_cm(100);
+  int echoLeftValue = sonar1.ping_cm(50);
+  int echoRightValue = sonar2.ping_cm(50);
 
+ 
   Serial.print(" E L: ");
   Serial.print(echoLeftValue);
   Serial.print(" L L: ");
@@ -69,7 +70,7 @@ void loop()
   Serial.print(" E R: ");
   Serial.print(echoRightValue);
 
-  if (leftEyeValue > lightThreshold || rightEyeValue > lightThreshold)
+  if (leftEyeValue < lightThreshold || rightEyeValue < lightThreshold)
   {
     Serial.print(" FOLLOW");
     currentState = FOLLOW;
@@ -77,7 +78,7 @@ void loop()
   else
   {
     Serial.print(" SEARCH");
-    // // No light detected search for light
+    // No light detected search for light
     currentState = SEARCH;
   }
 
@@ -87,16 +88,20 @@ void loop()
     currentState = AVOID_LEFT;
   }
 
-  if (isRightSensorWorking && echoRightValue > echoThreshold)
+
+  if (isRightSensorWorking && echoRightValue > echoThreshold) //not working
   {
     Serial.print(" AVOID_RIGHT");
     currentState = AVOID_RIGHT;
   }
 
+
   Serial.println("");
+
 
   switch (currentState)
   {
+    
   case FOLLOW:
     follow(leftEyeValue, rightEyeValue);
     break;
@@ -106,11 +111,11 @@ void loop()
     break;
 
   case AVOID_LEFT:
-    avoidObsticleOnLeft();
+    avoidObstacleOnLeft();
     break;
 
   case AVOID_RIGHT:
-    avoidObsticleOnRight();
+    avoidObstacleOnRight();
     break;
   }
 
@@ -131,8 +136,8 @@ void searchForLight()
   int i;
   for (i = 0; i < 60; i++)
   {
-    // Since our counter runs to 80, the total delay will be
-    // 80*20 = 1600 ms.
+    // Since our counter runs to 60, the total delay will be
+    // 60*20 = 1200 ms.
     delay(20);
 
     if ((i > 10 && i <= 30) || (i > 50 && i <= 70))
@@ -149,7 +154,7 @@ void searchForLight()
 
     if (leftEyeValue > lightThreshold || rightEyeValue > lightThreshold)
     {
-      Serial.print(" FOUND");
+      Serial.print("FOUND");
       currentState = FOLLOW;
 
       motors.setSpeeds(0, 0);
@@ -167,20 +172,21 @@ void searchForLight()
   digitalWrite(13, LOW);
 }
 
-void avoidObsticleOnLeft() // turn right
+void avoidObstacleOnLeft() // turn right
 {
   motors.setSpeeds(-TOP_SPEED, TOP_SPEED);
   delay(100);
 
-  motors.setSpeeds(TOP_SPEED, TOP_SPEED);
-  delay(1000);
+  motors.setSpeeds(TOP_SPEED, -TOP_SPEED);
+  delay(500);
 }
 
-void avoidObsticleOnRight() // turn left // this sensor is not working..... 
+void avoidObstacleOnRight() // turn left // this sensor is not working..... 
 {
   motors.setSpeeds(TOP_SPEED, -TOP_SPEED);
   delay(100);
 
-  motors.setSpeeds(TOP_SPEED, TOP_SPEED);
-  delay(1000);
+  motors.setSpeeds(-TOP_SPEED, TOP_SPEED);
+  delay(500);
 }
+
