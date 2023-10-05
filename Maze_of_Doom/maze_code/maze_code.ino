@@ -39,7 +39,7 @@ NewPing sonar2(rightTrigPin, rightEchoPin, 50);
 bool isLeftSensorWorking = true;
 bool isRightSensorWorking = true;
 
-const int lightThreshold = 200;
+const int lightThreshold = 30;
 const int echoThreshold = 20;
 const int TOP_SPEED = 100;
 
@@ -152,9 +152,9 @@ void searchForLight()
     int leftEyeValue = analogRead(left);
     int rightEyeValue = analogRead(right);
 
-    if (leftEyeValue > lightThreshold || rightEyeValue > lightThreshold)
+    if (leftEyeValue < lightThreshold || rightEyeValue < lightThreshold)
     {
-      Serial.print("FOUND");
+      Serial.print("FOLLOW");
       currentState = FOLLOW;
 
       motors.setSpeeds(0, 0);
