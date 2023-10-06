@@ -33,14 +33,14 @@ const int rightEchoPin = 2;
 int leftEyeValue;
 int rightEyeValue;
 
-NewPing sonar1(leftTrigPin, leftEchoPin, 50);
-NewPing sonar2(rightTrigPin, rightEchoPin, 50);
+NewPing sonar1(leftTrigPin, leftEchoPin, 100);
+NewPing sonar2(rightTrigPin, rightEchoPin, 100);
 
 bool isLeftSensorWorking = true;
 bool isRightSensorWorking = true;
 
 const int lightThreshold = 30;
-const int echoThreshold = 20;
+const int echoThreshold = 5;
 const int TOP_SPEED = 100;
 
 void setup()
@@ -57,8 +57,8 @@ void loop()
   int leftEyeValue = analogRead(left);
   int rightEyeValue = analogRead(right);
 
-  int echoLeftValue = sonar1.ping_cm(50);
-  int echoRightValue = sonar2.ping_cm(50);
+  int echoLeftValue = sonar1.ping_cm(100);
+  int echoRightValue = sonar2.ping_cm(100);
 
  
   Serial.print(" E L: ");
@@ -82,14 +82,14 @@ void loop()
     currentState = SEARCH;
   }
 
-  if (isLeftSensorWorking && echoLeftValue > echoThreshold)
+  if (isLeftSensorWorking && echoLeftValue <= echoThreshold)
   {
     Serial.print(" AVOID_LEFT");
     currentState = AVOID_LEFT;
   }
 
 
-  if (isRightSensorWorking && echoRightValue > echoThreshold) //not working
+  if (isRightSensorWorking && echoRightValue <= echoThreshold) //not working
   {
     Serial.print(" AVOID_RIGHT");
     currentState = AVOID_RIGHT;
@@ -129,64 +129,64 @@ void follow(int leftEyeValue, int rightEyeValue)
 
 void searchForLight()
 {
-  // LED indicates calibration is happening
-  pinMode(13, OUTPUT);
-  digitalWrite(13, HIGH);
-
-  int i;
-  for (i = 0; i < 60; i++)
-  {
-    // Since our counter runs to 60, the total delay will be
-    // 60*20 = 1200 ms.
-    delay(20);
-
-    if ((i > 10 && i <= 30) || (i > 50 && i <= 70))
-    {
-      motors.setSpeeds(-TOP_SPEED, TOP_SPEED);
-    }
-    else
-    {
-      motors.setSpeeds(TOP_SPEED, -TOP_SPEED);
-    }
-
-    int leftEyeValue = analogRead(left);
-    int rightEyeValue = analogRead(right);
-
-    if (leftEyeValue < lightThreshold || rightEyeValue < lightThreshold)
-    {
-      Serial.print("FOLLOW");
-      currentState = FOLLOW;
-
-      motors.setSpeeds(0, 0);
-
-      // Turn off LED to indicate we are through with calibration
-      digitalWrite(13, LOW);
-
-      return;
-    }
-  }
-
-  motors.setSpeeds(0, 0);
-
-  // Turn off LED to indicate we are through with calibration
-  digitalWrite(13, LOW);
+  motors.setSpeeds(TOP_SPEED, TOP_SPEED);
+  delay(500);
 }
+
+// void searchForLight()
+// {
+//   // LED indicates calibration is happening
+//   pinMode(13, OUTPUT);
+//   digitalWrite(13, HIGH);
+
+//   int i;
+//   for (i = 0; i < 60; i++)
+//   {
+//     // Since our counter runs to 60, the total delay will be
+//     // 60*20 = 1200 ms.
+//     delay(20);
+
+//     if ((i > 30 && i <= 100) || (i > 50 && i <= 70))
+//     {
+//       motors.setSpeeds(-TOP_SPEED, TOP_SPEED);
+//     }
+//     else
+//     {
+//       motors.setSpeeds(TOP_SPEED, TOP_SPEED);
+//     }
+
+//     int leftEyeValue = analogRead(left);
+//     int rightEyeValue = analogRead(right);
+
+//     if (leftEyeValue < lightThreshold || rightEyeValue < lightThreshold)
+//     {
+//       Serial.print("FOLLOW");
+//       currentState = FOLLOW;
+
+//       // motors.setSpeeds(0, 0);
+
+//       // Turn off LED to indicate we are through with calibration
+//       digitalWrite(13, LOW);
+
+//       return;
+//     }
+//   }
+
+//   motors.setSpeeds(0, 0);
+
+//   // Turn off LED to indicate we are through with calibration
+//   digitalWrite(13, LOW);
+// }
 
 void avoidObstacleOnLeft() // turn right
 {
   motors.setSpeeds(-TOP_SPEED, TOP_SPEED);
-  delay(100);
-
-  motors.setSpeeds(TOP_SPEED, -TOP_SPEED);
-  delay(500);
+  delay(200);
 }
 
 void avoidObstacleOnRight() // turn left // this sensor is not working..... 
 {
   motors.setSpeeds(TOP_SPEED, -TOP_SPEED);
-  delay(100);
-
-  motors.setSpeeds(-TOP_SPEED, TOP_SPEED);
-  delay(500);
+  delay(200);
 }
 
