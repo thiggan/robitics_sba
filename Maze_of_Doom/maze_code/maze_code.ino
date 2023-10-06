@@ -60,15 +60,49 @@ void loop()
   int echoLeftValue = sonar1.ping_cm(100);
   int echoRightValue = sonar2.ping_cm(100);
 
+  // we are assuming that a value of zero means there was no reading or the devicie is disconnected
+  if(echoLeftValue == 0)
+  {
+    isLeftSensorWorking = false;
+  }
+  else
+  {
+    isLeftSensorWorking = true;
+  }
+
+  // we are assuming that a value of zero means there was no reading or the devicie is disconnected
+  if(echoRightValue == 0)
+  {
+    isRightSensorWorking = false;
+  }
+  else
+  {
+    isRightSensorWorking = true;
+  }
  
   Serial.print(" E L: ");
-  Serial.print(echoLeftValue);
+  if(isLeftSensorWorking == true)
+  {
+    Serial.print(echoLeftValue);
+  }
+  else
+  {
+    Serial.print(" (no-value) ");
+  }
+  
   Serial.print(" L L: ");
   Serial.print(leftEyeValue);
   Serial.print(" L R: ");
   Serial.print(rightEyeValue);
   Serial.print(" E R: ");
-  Serial.print(echoRightValue);
+  if(isRightSensorWorking == true)
+  {
+    Serial.print(echoRightValue);
+  }
+  else
+  {
+    Serial.print(" (no-value) ");
+  }
 
   if (leftEyeValue > lightThreshold || rightEyeValue > lightThreshold)
   {
@@ -87,15 +121,11 @@ void loop()
     Serial.print(" AVOID_LEFT");
     currentState = AVOID_LEFT;
   }
-
-
   if (isRightSensorWorking && echoRightValue <= echoThreshold) //not working
   {
     Serial.print(" AVOID_RIGHT");
     currentState = AVOID_RIGHT;
   }
-
-
   Serial.println("");
 
 
@@ -180,13 +210,13 @@ void searchForLight()
 
 void avoidObstacleOnLeft() // turn right
 {
-  motors.setSpeeds(-TOP_SPEED, TOP_SPEED);
+  motors.setSpeeds(TOP_SPEED/2, -TOP_SPEED/2);
   delay(200);
 }
 
 void avoidObstacleOnRight() // turn left // this sensor is not working..... 
 {
-  motors.setSpeeds(TOP_SPEED, -TOP_SPEED);
+  motors.setSpeeds(-TOP_SPEED/2, TOP_SPEED/2);
   delay(200);
 }
 
