@@ -163,51 +163,6 @@ void searchForLight()
   delay(500);
 }
 
-// void searchForLight()
-// {
-//   // LED indicates calibration is happening
-//   pinMode(13, OUTPUT);
-//   digitalWrite(13, HIGH);
-
-//   int i;
-//   for (i = 0; i < 60; i++)
-//   {
-//     // Since our counter runs to 60, the total delay will be
-//     // 60*20 = 1200 ms.
-//     delay(20);
-
-//     if ((i > 30 && i <= 100) || (i > 50 && i <= 70))
-//     {
-//       motors.setSpeeds(-TOP_SPEED, TOP_SPEED);
-//     }
-//     else
-//     {
-//       motors.setSpeeds(TOP_SPEED, TOP_SPEED);
-//     }
-
-//     int leftEyeValue = analogRead(left);
-//     int rightEyeValue = analogRead(right);
-
-//     if (leftEyeValue < lightThreshold || rightEyeValue < lightThreshold)
-//     {
-//       Serial.print("FOLLOW");
-//       currentState = FOLLOW;
-
-//       // motors.setSpeeds(0, 0);
-
-//       // Turn off LED to indicate we are through with calibration
-//       digitalWrite(13, LOW);
-
-//       return;
-//     }
-//   }
-
-//   motors.setSpeeds(0, 0);
-
-//   // Turn off LED to indicate we are through with calibration
-//   digitalWrite(13, LOW);
-// }
-
 void avoidObstacleOnLeft() // turn right
 {
   motors.setSpeeds(TOP_SPEED, -TOP_SPEED);
