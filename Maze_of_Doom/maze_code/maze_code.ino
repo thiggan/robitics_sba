@@ -139,6 +139,7 @@ void follow(int leftEyeValue, int rightEyeValue) {
 void searchForLight() {
   motors.setSpeeds(TOP_SPEED, TOP_SPEED);
   delay(100);
+  
 }
 
 
@@ -146,10 +147,16 @@ void avoidObstacleOnLeft()  // turn right
 {
   motors.setSpeeds(TOP_SPEED, -TOP_SPEED);
   delay(100);
+
+   motors.setSpeeds(-TOP_SPEED, -TOP_SPEED);
+   delay(100);
 }
 
 void avoidObstacleOnRight()  // turn left // this sensor is not working.....
 {
   motors.setSpeeds(-TOP_SPEED, TOP_SPEED);
+  delay(100);
+
+   motors.setSpeeds(-TOP_SPEED, -TOP_SPEED);
   delay(100);
 }
