@@ -41,7 +41,7 @@ bool isRightSensorWorking = true;
 
 const int lightThreshold = 30;
 const int echoThreshold = 15;
-const int TOP_SPEED = 100;
+const int TOP_SPEED = 150;
 
 void setup()
 {
@@ -160,8 +160,9 @@ void follow(int leftEyeValue, int rightEyeValue)
 void searchForLight()
 {
   motors.setSpeeds(TOP_SPEED, TOP_SPEED);
-  delay(500);
+  delay(100);
 }
+
 
 void avoidObstacleOnLeft() // turn right
 {
@@ -175,4 +176,5 @@ void avoidObstacleOnRight() // turn left // this sensor is not working.....
   motors.setSpeeds(-TOP_SPEED, TOP_SPEED);
     delay(100);
 }
+
 
