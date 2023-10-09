@@ -8,8 +8,7 @@
 
 ZumoMotors motors;
 
-enum States
-{
+enum States {
   FOLLOW,
   AVOID_LEFT,
   AVOID_RIGHT,
@@ -43,16 +42,14 @@ const int lightThreshold = 30;
 const int echoThreshold = 15;
 const int TOP_SPEED = 150;
 
-void setup()
-{
+void setup() {
   Serial.begin(9600);
   // Initialize motor control pins as OUTPUT
   pinMode(left, OUTPUT);
   pinMode(right, OUTPUT);
 }
 
-void loop()
-{
+void loop() {
   // Read the LDR sensor leftEyeValue
   int leftEyeValue = analogRead(left);
   int rightEyeValue = analogRead(right);
@@ -61,67 +58,51 @@ void loop()
   int echoRightValue = sonar2.ping_cm(100);
 
   // we are assuming that a value of zero means there was no reading or the devicie is disconnected
-  if(echoLeftValue == 0)
-  {
+  if (echoLeftValue == 0) {
     isLeftSensorWorking = false;
-  }
-  else
-  {
+  } else {
     isLeftSensorWorking = true;
   }
 
   // we are assuming that a value of zero means there was no reading or the devicie is disconnected
-  if(echoRightValue == 0)
-  {
+  if (echoRightValue == 0) {
     isRightSensorWorking = false;
-  }
-  else
-  {
+  } else {
     isRightSensorWorking = true;
   }
- 
+
   Serial.print(" E L: ");
-  if(isLeftSensorWorking == true)
-  {
+  if (isLeftSensorWorking == true) {
     Serial.print(echoLeftValue);
-  }
-  else
-  {
+  } else {
     Serial.print(" (no-value) ");
   }
-  
+
   Serial.print(" L L: ");
   Serial.print(leftEyeValue);
   Serial.print(" L R: ");
   Serial.print(rightEyeValue);
   Serial.print(" E R: ");
-  if(isRightSensorWorking == true)
-  {
+  if (isRightSensorWorking == true) {
     Serial.print(echoRightValue);
-  }
-  else
-  {
+  } else {
     Serial.print(" (no-value) ");
   }
 
-  if (leftEyeValue > lightThreshold || rightEyeValue > lightThreshold)
-  {
+  if (leftEyeValue > lightThreshold || rightEyeValue > lightThreshold) {
     Serial.print(" FOLLOW");
     currentState = FOLLOW;
-  }
-  else
-  {
+  } else {
     Serial.print(" SEARCH");
     // No light detected search for light
     currentState = SEARCH;
   }
 
-  if (isLeftSensorWorking && echoLeftValue <= echoThreshold)
-  {
+  if (isLeftSensorWorking && echoLeftValue <= echoThreshold) {
     Serial.print(" AVOID_LEFT");
     currentState = AVOID_LEFT;
   }
-  if (isRightSensorWorking && echoRightValue <= echoThreshold) //not working
+  if (isRightSensorWorking && echoRightValue <= echoThreshold)  //not working
   {
     Serial.print(" AVOID_RIGHT");
     currentState = AVOID_RIGHT;
@@ -129,52 +110,46 @@ void loop()
   Serial.println("");
 
 
-  switch (currentState)
-  {
-    
-  case FOLLOW:
-    follow(leftEyeValue, rightEyeValue);
-    break;
+  switch (currentState) {
 
-  case SEARCH:
-    searchForLight();
-    break;
+    case FOLLOW:
+      follow(leftEyeValue, rightEyeValue);
+      break;
 
-  case AVOID_LEFT:
-    avoidObstacleOnLeft();
-    break;
+    case SEARCH:
+      searchForLight();
+      break;
 
-  case AVOID_RIGHT:
-    avoidObstacleOnRight();
-    break;
+    case AVOID_LEFT:
+      avoidObstacleOnLeft();
+      break;
+
+    case AVOID_RIGHT:
+      avoidObstacleOnRight();
+      break;
   }
 
   delay(100);
 }
 
-void follow(int leftEyeValue, int rightEyeValue)
-{
+void follow(int leftEyeValue, int rightEyeValue) {
   motors.setSpeeds(leftEyeValue * 2, rightEyeValue * 2);
 }
 
-void searchForLight()
-{
+void searchForLight() {
   motors.setSpeeds(TOP_SPEED, TOP_SPEED);
   delay(100);
 }
 
 
-void avoidObstacleOnLeft() // turn right
+void avoidObstacleOnLeft()  // turn right
 {
   motors.setSpeeds(TOP_SPEED, -TOP_SPEED);
   delay(100);
-
 }
 
-void avoidObstacleOnRight() // turn left // this sensor is not working..... 
+void avoidObstacleOnRight()  // turn left // this sensor is not working.....
 {
   motors.setSpeeds(-TOP_SPEED, TOP_SPEED);
-    delay(100);
+  delay(100);
 }
-
-
