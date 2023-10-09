@@ -146,17 +146,17 @@ void searchForLight() {
 void avoidObstacleOnLeft()  // turn right
 {
   motors.setSpeeds(TOP_SPEED, -TOP_SPEED);
-  delay(100);
+  delay(400);
 
    motors.setSpeeds(-TOP_SPEED, -TOP_SPEED);
-   delay(100);
+   delay(400);
 }
 
 void avoidObstacleOnRight()  // turn left // this sensor is not working.....
 {
   motors.setSpeeds(-TOP_SPEED, TOP_SPEED);
-  delay(100);
+  delay(400);
 
    motors.setSpeeds(-TOP_SPEED, -TOP_SPEED);
-  delay(100);
+  delay(400);
 }
