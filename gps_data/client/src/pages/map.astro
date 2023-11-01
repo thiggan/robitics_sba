@@ -1,12 +1,13 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Card from '../components/Card.astro';
+import Layout from "../layouts/MapLayout.astro";
+import Card from "../components/Card.astro";
 ---
 
 <Layout title="Map Data.">
-    <main>
-        svg
-            class="astro-a"
-
-    </main>
+  <div slot="left">
+    <h2>inside the left slot</h2>
+  </div>
+  <div slot="right">
+    <h2>inside the right slot</h2>
+  </div>
 </Layout>
