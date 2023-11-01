@@ -17,56 +17,216 @@ const { title } = Astro.props;
     <title>{title}</title>
   </head>
   <body>
-    <div class="row">
-      <h1>the top</h1>
-    </div>
-    <div class="row">
-      <div class="column">
+    <div class="site">
+      <header class="masthead">
+        <h2 class="site-title">Standard two-column layout</h2>
+      </header>
+
+      <main id="content" class="main-content">
         <slot name="left">
           <p>Mabye you forogot to put soemthing in the MapLayout left slot</p>
         </slot>
-      </div>
-      <div class="column">
+      </main>
+
+      <aside class="sidebar">
         <slot name="right">
           <p>Mabye you forogot to put soemthing in the MapLayout right slot</p>
         </slot>
-      </div>
-    </div>
-    <div class="row">
-      <h1>the bottom</h1>
+      </aside>
+
+      <aside class="twin">This should take up half the space</aside>
+      <aside class="twin">
+        This should take up the other half of the space
+      </aside>
+
+      <footer class="colophon grid">
+        <aside>
+          Tracy Awesomesauce
+        </aside>
+      </footer>
     </div>
   </body>
 </html>
 <style is:global>
   :root {
-    --accent: 136, 58, 234;
-    --accent-light: 224, 204, 250;
-    --accent-dark: 49, 10, 101;
-    --accent-gradient: linear-gradient(
-      45deg,
-      rgb(var(--accent)),
-      rgb(var(--accent-light)) 30%,
-      white 60%
-    );
+    /* NOTE:
+ * Grid layout stuff starts at line 138. 
+ * The stuff before is just boring old CSS to make content look not crappy.
+ */
 
-    .row {
-      display: flex;
+    /*--------------------------------------------------------------
+CSS Reset
+--------------------------------------------------------------*/
+    html {
+      font-family: sans-serif;
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
     }
 
-    .row {
-      .column {
-        font-style: italic;
-        border-style: dashed;
+    body {
+      margin: 0;
+    }
+
+    img {
+      display: block;
+      border: 0;
+      width: 100%;
+      height: auto;
+    }
+
+    /*--------------------------------------------------------------
+Accessibility
+--------------------------------------------------------------*/
+    /* Text meant only for screen readers */
+    .screen-reader-text {
+      clip: rect(1px, 1px, 1px, 1px);
+      position: absolute !important;
+      height: 1px;
+      width: 1px;
+      overflow: hidden;
+    }
+
+    .screen-reader-text:hover,
+    .screen-reader-text:active,
+    .screen-reader-text:focus {
+      background-color: #f1f1f1;
+      border-radius: 3px;
+      box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.6);
+      clip: auto !important;
+      color: #21759b;
+      display: block;
+      font-size: 14px;
+      font-weight: bold;
+      height: auto;
+      left: 5px;
+      line-height: normal;
+      padding: 15px 23px 14px;
+      text-decoration: none;
+      top: 5px;
+      width: auto;
+      z-index: 100000; /* Above WP toolbar */
+    }
+
+    /*--------------------------------------------------------------
+Typography
+--------------------------------------------------------------*/
+    body,
+    button,
+    input,
+    select,
+    textarea {
+      color: #404040;
+      font-family: "Helvetica", Arial, sans-serif;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      padding: 1em 0;
+    }
+
+    p {
+      margin: 0;
+      padding: 1em 0;
+    }
+
+    /*--------------------------------------------------------------
+General styles
+--------------------------------------------------------------*/
+    .site {
+      background: #ededed;
+      min-height: 100vh;
+    }
+
+    .masthead,
+    .main-content,
+    .sidebar,
+    .twin,
+    .footer {
+      padding: 1em 2em;
+    }
+
+    .main-content {
+      background: white;
+    }
+    .masthead {
+      background: #2185c5;
+      color: white;
+    }
+
+    .sidebar {
+      background: #ff7f66;
+    }
+
+    .twin {
+      background: #2185c5;
+    }
+
+    .twin:last-of-type {
+      background: #7ecefd;
+    }
+
+    .colophon {
+      padding: 2em;
+      background: #3e454c;
+      color: white;
+    }
+
+    .colophon a {
+      color: white;
+    }
+
+    .colophon a:hover,
+    .colophon a:focus {
+      border-bottom: 1px solid white;
+    }
+
+    /*--------------------------------------------------------------
+If no grid support, limit width to 50em and center align
+--------------------------------------------------------------*/
+    @supports not (display: grid) {
+      .site {
+        max-width: 50em;
+        margin: 0 auto;
       }
     }
-    .column {
-      flex: 50%;
-    }
 
-    /* Responsive layout - when the screen is less than 600px wide, make the two columns stack on top of each other instead of next to each other */
-    @media screen and (min-width: 500px) {
-      .column {
-        width: 100%;
+    /*--------------------------------------------------------------
+CSS Grid layout for wider screens, when browser supports grid:
+--------------------------------------------------------------*/
+
+    @media screen and (min-width: 600px) {
+      @supports (display: grid) {
+        .site {
+          display: grid;
+          grid-template-columns: 1fr repeat(6, minmax(auto, 10em)) 1fr;
+          grid-template-rows: minmax(1em, auto) 1fr auto minmax(1em, auto);
+        }
+
+        .masthead,
+        .colophon {
+          grid-column: span 8;
+        }
+
+        .main-content {
+          grid-column: 2/6;
+        }
+
+        .sidebar {
+          grid-column: 6/8;
+        }
+
+        .twin {
+          grid-column: 2/5;
+          grid-row: 3/4;
+        }
+
+        .twin:last-of-type {
+          grid-column: 5/8;
+        }
       }
     }
   }
