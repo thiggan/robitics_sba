@@ -18,7 +18,7 @@ const { title } = Astro.props;
   </head>
   <body>
     <div class="site">
-      <header class="masthead">
+      <header class="heading">
         <h2 class="site-title">GPS Data Ouput with Map data</h2>
       </header>
 
@@ -141,7 +141,7 @@ General styles
       min-height: 100vh;
     }
 
-    .masthead,
+    .heading,
     .map-data,
     .gps-data,
     .twin,
@@ -149,25 +149,40 @@ General styles
       padding: 1em 2em;
     }
 
-    .gps-data {
-      background: black;
-	  color: white;
-	  
+   
+    .heading {
+      background: lightblue;
+      color: black;
+	  border-radius: 20px;
+	 
     }
-    .masthead {
-      background: cornflowerblue;
-      color: white;
+
+	.gps-data {
+      background: lightblue;
+	  color: black;
+	  border-radius: 20px;
+	  
     }
 
     .map-data {
-      background: white;
+      background: lightgrey;
+	  color: black;
+	  border-radius: 20px;
 	 
     }
 
     .twin {
-      background: cornflowerblue;
-	  color: white;
+      background: lightblue;
+	  color: black;
+	  border-radius: 20px;
+	 
     }
+
+	.twin:last-of-type{
+		background: lightblue;
+		color: black;
+	}
+
 
     .colophon {
       padding: 2em;
@@ -206,17 +221,21 @@ CSS Grid layout for wider screens, when browser supports grid:
           grid-template-rows: minmax(1em, auto) 1fr auto minmax(1em, auto);
         }
 
-        .masthead,
+        .heading,
         .colophon {
           grid-column: span 8;
+		 
         }
 
         .gps-data {
           grid-column: span 4;
+		  
+		 
         }
 
         .map-data {
           grid-column: span 4;
+		
         }
 
         .twin {
