@@ -12,6 +12,8 @@ builder.Services.AddCors(options =>
                           policy.AllowAnyHeader();
                       });
 });
+builder.Services.AddHostedService<DevicePullerBackgroundTask>();
+builder.Services.AddSingleton<Store>(new Store());
 
 var app = builder.Build();
 
@@ -19,14 +21,14 @@ app.UseCors();
 
 app.MapGet("/", () => "Hello World!");
 
-app.MapGet("/api/gps", async () =>
+app.MapGet("/api/gps", async (Store store) =>
 {
-    return Results.Json(Gps.Random());
+    return Results.Json(store.Current);
 });
 
 app.Run();
 
-record Gps(double Latitude, double Longitude, double Altitude, double speed, double Angle, double Satellites, string FixType, DateTime TimeStamp)
+public record Gps(double Latitude, double Longitude, double Altitude, double speed, double Angle, double Satellites, string FixType, DateTime TimeStamp)
 {
     public static Gps Random()
     {
@@ -45,5 +47,31 @@ record Gps(double Latitude, double Longitude, double Altitude, double speed, dou
         var randomLon = r.NextDouble() * (Math.Max(lon1, lon2) - Math.Min(lon1, lon2)) + Math.Min(lon1, lon2);
 
         return new Gps(randomLat, randomLon, r.Next(-20, 200), r.Next(0, 100), r.Next(0, 364), r.Next(0, 20), "todo", DateTime.UtcNow);
+    }
+}
+
+public class Store
+{
+    public Gps Current { get; set; }
+}
+
+public class DevicePullerBackgroundTask : BackgroundService
+{
+    readonly TimeSpan _period = TimeSpan.FromSeconds(1);
+    private readonly Store store;
+
+    public DevicePullerBackgroundTask(Store store)
+    {
+        this.store = store;
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        using var timer = new PeriodicTimer(_period);
+        while(! stoppingToken.IsCancellationRequested
+            && await timer.WaitForNextTickAsync(stoppingToken))
+        {
+            store.Current = Gps.Random();
+        }
     }
 }
