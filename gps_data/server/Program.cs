@@ -1,15 +1,32 @@
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+                      policy =>
+                      {
+                          policy.AllowAnyOrigin();
+                          policy.AllowAnyMethod();
+                          policy.AllowAnyHeader();
+                      });
+});
+
 var app = builder.Build();
+
+app.UseCors();
 
 app.MapGet("/", () => "Hello World!");
 
-app.MapGet("/api/gps", async () => {
+app.MapGet("/api/gps", async () =>
+{
     return Results.Json(Gps.Random());
 });
 
 app.Run();
 
-record Gps ( double Latitude, double Longitude, double Altitude, double speed, double Angle, double Satellites, string FixType, DateTime TimeStamp)
+record Gps(double Latitude, double Longitude, double Altitude, double speed, double Angle, double Satellites, string FixType, DateTime TimeStamp)
 {
     public static Gps Random()
     {
