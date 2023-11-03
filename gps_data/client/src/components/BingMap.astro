@@ -14,164 +14,165 @@ const { href, title, body } = Astro.props;
 >
 </div>
 
-
 <div>
   <button onclick="
   addMorePins()
-">add more</button>
+  ">random pins</button>
 </div>
 
 <div>
   <button onclick="
   addPinsFromService()
-  ">GPS Track</button>
+  ">pin from service</button>
 </div>
-
-<div>
-  <button onclick="
-  gpsData1()">
-GPS Data</button>
-</div>
-
 
 <script is:inline>
-  var map, infobox, tooltip;
-  var tooltipTemplate =
-    '<div style="background-color:white;height:20px;width:150px;padding:5px;text-align:center"><b>{title}</b></div>';
+var map, infobox, tooltip;
+var tooltipTemplate =
+  '<div style="background-color:white;height:20px;width:150px;padding:5px;text-align:center"><b>{title}</b></div>';
 
-  function GetMap() {
-    map = new Microsoft.Maps.Map("#myMap", {});
+function GetMap() {
+  map = new Microsoft.Maps.Map("#myMap", {});
 
-    //Create an infobox to use as a tooltip when hovering.
-    tooltip = new Microsoft.Maps.Infobox(map.getCenter(), {
-      visible: false,
-      showPointer: false,
-      showCloseButton: false,
-      offset: new Microsoft.Maps.Point(-75, 10),
+  //Create an infobox to use as a tooltip when hovering.
+  tooltip = new Microsoft.Maps.Infobox(map.getCenter(), {
+    visible: false,
+    showPointer: false,
+    showCloseButton: false,
+    offset: new Microsoft.Maps.Point(-75, 10),
+  });
+
+  tooltip.setMap(map);
+
+  //Create an infobox for displaying detailed information.
+  infobox = new Microsoft.Maps.Infobox(map.getCenter(), {
+    visible: false,
+  });
+
+  infobox.setMap(map);
+
+  //Create random locations in the map bounds.
+  var randomLocations = Microsoft.Maps.TestDataGenerator.getLocations(
+    5,
+    map.getBounds()
+  );
+
+  for (var i = 0; i < randomLocations.length; i++) {
+    var pin = new Microsoft.Maps.Pushpin(randomLocations[i]);
+
+    //Store some metadata with the pushpin.
+    pin.metadata = {
+      title: "Pushpin " + i,
+      description: "Discription for pin " + i,
+    };
+
+    //Add a mouse events to the pushpin.
+    Microsoft.Maps.Events.addHandler(pin, "click", pushpinClicked);
+    Microsoft.Maps.Events.addHandler(pin, "mouseover", pushpinHovered);
+    Microsoft.Maps.Events.addHandler(pin, "mouseout", closeTooltip);
+
+    //Add pushpin to the map.
+    map.entities.push(pin);
+  }
+}
+
+function pushpinClicked(e) {
+  //Hide the tooltip
+  closeTooltip();
+
+  //Make sure the infobox has metadata to display.
+  if (e.target.metadata) {
+    //Set the infobox options with the metadata of the pushpin.
+    infobox.setOptions({
+      location: e.target.getLocation(),
+      title: e.target.metadata.title,
+      description: e.target.metadata.description,
+      visible: true,
     });
-
-    tooltip.setMap(map);
-
-    //Create an infobox for displaying detailed information.
-    infobox = new Microsoft.Maps.Infobox(map.getCenter(), {
-      visible: false,
-    });
-
-    infobox.setMap(map);
-
-    //Create random locations in the map bounds.
-    var randomLocations = Microsoft.Maps.TestDataGenerator.getLocations(
-      5,
-      map.getBounds()
-    );
-
-    for (var i = 0; i < randomLocations.length; i++) {
-      var pin = new Microsoft.Maps.Pushpin(randomLocations[i]);
-
-      //Store some metadata with the pushpin.
-      pin.metadata = {
-        title: "Pushpin " + i,
-        description: "Discription for pin " + i,
-      };
-
-      //Add a mouse events to the pushpin.
-      Microsoft.Maps.Events.addHandler(pin, "click", pushpinClicked);
-      Microsoft.Maps.Events.addHandler(pin, "mouseover", pushpinHovered);
-      Microsoft.Maps.Events.addHandler(pin, "mouseout", closeTooltip);
-
-      //Add pushpin to the map.
-      map.entities.push(pin);
-    }
   }
+}
 
-  function pushpinClicked(e) {
-    //Hide the tooltip
-    closeTooltip();
+function pushpinHovered(e) {
+  //Hide the infobox
+  infobox.setOptions({ visible: false });
 
-    //Make sure the infobox has metadata to display.
-    if (e.target.metadata) {
-      //Set the infobox options with the metadata of the pushpin.
-      infobox.setOptions({
-        location: e.target.getLocation(),
-        title: e.target.metadata.title,
-        description: e.target.metadata.description,
-        visible: true,
-      });
-    }
-  }
-
-  function pushpinHovered(e) {
-    //Hide the infobox
-    infobox.setOptions({ visible: false });
-
-    //Make sure the infobox has metadata to display.
-    if (e.target.metadata) {
-      //Set the infobox options with the metadata of the pushpin.
-      tooltip.setOptions({
-        location: e.target.getLocation(),
-        htmlContent: tooltipTemplate.replace(
-          "{title}",
-          e.target.metadata.title
-        ),
-        visible: true,
-      });
-    }
-  }
-
-  function closeTooltip() {
-    //Close the tooltip and clear its content.
+  //Make sure the infobox has metadata to display.
+  if (e.target.metadata) {
+    //Set the infobox options with the metadata of the pushpin.
     tooltip.setOptions({
-      visible: false,
+      location: e.target.getLocation(),
+      htmlContent: tooltipTemplate.replace(
+        "{title}",
+        e.target.metadata.title
+      ),
+      visible: true,
     });
   }
+}
 
-  function addMorePins() {
-    var randomLocations = Microsoft.Maps.TestDataGenerator.getLocations(
-      5,
-      map.getBounds()
-    );
-    for (var i = 0; i < randomLocations.length; i++) {
-      var pin = new Microsoft.Maps.Pushpin(randomLocations[i]);
+function closeTooltip() {
+  //Close the tooltip and clear its content.
+  tooltip.setOptions({
+    visible: false,
+  });
+}
 
-      //Store some metadata with the pushpin.
-      pin.metadata = {
-        title: "Pushpin " + i,
-        description: "Discription for pin " + i,
-      };
+function addMorePins() {
+  var randomLocations = Microsoft.Maps.TestDataGenerator.getLocations(
+    5,
+    map.getBounds()
+  );
+  for (var i = 0; i < randomLocations.length; i++) {
+    var pin = new Microsoft.Maps.Pushpin(randomLocations[i]);
 
-      //Add a mouse events to the pushpin.
-      Microsoft.Maps.Events.addHandler(pin, "click", pushpinClicked);
-      Microsoft.Maps.Events.addHandler(pin, "mouseover", pushpinHovered);
-      Microsoft.Maps.Events.addHandler(pin, "mouseout", closeTooltip);
+    //Store some metadata with the pushpin.
+    pin.metadata = {
+      title: "Pushpin " + i,
+      description: "Discription for pin " + i,
+    };
 
-      //Add pushpin to the map.
-      map.entities.push(pin);
-    }
+    //Add a mouse events to the pushpin.
+    Microsoft.Maps.Events.addHandler(pin, "click", pushpinClicked);
+    Microsoft.Maps.Events.addHandler(pin, "mouseover", pushpinHovered);
+    Microsoft.Maps.Events.addHandler(pin, "mouseout", closeTooltip);
+
+    //Add pushpin to the map.
+    map.entities.push(pin);
   }
+}
 
+async function addPinsFromService() {
+  let blob = await fetch("https://localhost:7009/api/gps")
+    .then((r) => r.json())
+    .then((key) => {
+      return key;
+    });
+  console.log(blob);
 
-  async function addPinsFromService() {
-    let blob = await fetch("https://localhost:7009/api/gps").then(r => r.text()).then(key => { return key });
-    console.log(blob);
-  }
+  var loc = new Microsoft.Maps.Location(
+    blob.latitude,
+    blob.longitude
+  );
 
-  async function gpsData1() {
-    let blob = await fetch("https://localhost:7009/api/gps").then(r => r.text()).then(key => { return key });
-    console.log(blob);
-  }
+  //Add a pushpin at the user's location.
+  var pin = new Microsoft.Maps.Pushpin(loc);
+  map.entities.push(pin);
 
-  
-  // Dynamic load the Bing Maps Key and Script
-  // Get your own Bing Maps key at https://www.microsoft.com/maps
-  (async () => {
-    let script = document.createElement("script");
-    // let bingKey = await fetch("https://samples.azuremaps.com/api/GetBingMapsKey").then(r => r.text()).then(key => { return key });
-    let bingKey =
-      "AlSz6qB5P0wkOEbDNlU50syIell6SkrlK3Nl_J4sSjJzuKzFz74PYx8csd26zmj0";
-    script.setAttribute(
-      "src",
-      `https://www.bing.com/api/maps/mapcontrol?callback=GetMap&key=${bingKey}`
-    );
+  //Center the map on the user's location.
+  map.setView({ center: loc, zoom: 10 });
+}
+
+// Dynamic load the Bing Maps Key and Script
+// Get your own Bing Maps key at https://www.microsoft.com/maps
+(async () => {
+  let script = document.createElement("script");
+  // let bingKey = await fetch("https://samples.azuremaps.com/api/GetBingMapsKey").then(r => r.text()).then(key => { return key });
+  let bingKey =
+    "AlSz6qB5P0wkOEbDNlU50syIell6SkrlK3Nl_J4sSjJzuKzFz74PYx8csd26zmj0";
+  script.setAttribute(
+    "src",
+    `https://www.bing.com/api/maps/mapcontrol?callback=GetMap&key=${bingKey}`
+  );
     document.body.appendChild(script);
   })();
 </script>
