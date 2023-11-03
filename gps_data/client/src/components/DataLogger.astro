@@ -10,22 +10,21 @@ const { href, title, body } = Astro.props;
 
 <div
   id="myData"
-  style="position:relative;width:100%;min-width:290px;height:600px;background-color:lightgray"
 >
-  <table id="data-table">
+  <table id="table-header">
     <thead>
       <tr>
         <th>Latitude</th>
         <th>Longitude</th>
         <th>Altitude</th>
         <th>Speed</th>
-        <th>Angle</th>
+        <!-- <th>Angle</th> -->
         <th>Satellites</th>
-        <th>Fix Type</th>
-        <th>Timestamp</th>
+        <!-- <th>Fix Type</th> -->
+        <!-- <th>Timestamp</th> -->
       </tr>
     </thead>
-    <tbody id="table-body">
+    <tbody id="table-data">
       <!-- Data will be added here dynamically -->
     </tbody>
   </table>
@@ -37,6 +36,40 @@ const { href, title, body } = Astro.props;
   ">Data Logs</button>
 </div>
 
+
+
+
+<style>
+/* Style for the table */
+#table-header {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+/* Style for table header */
+#table-header th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+  text-align: center;
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+
+#table-data {
+    background-color: #f2f2f2;
+    text-align: center;
+
+}
+
+#table-data:hover{
+    background-color: gray;
+}
+
+
+</style>
+
 <script is:inline>
 async function getGpsData() {
     let data = await fetch("https://localhost:7009/api/gps")
@@ -46,17 +79,21 @@ async function getGpsData() {
         });
     // console.log(data);
 
-    var tableBody = document.getElementById("table-body");
+    var tableBody = document.getElementById("table-data");
     var row = tableBody.insertRow();
+    
 
     // Populate cells with JSON data
     row.insertCell().textContent = data.latitude;
     row.insertCell().textContent = data.longitude;
     row.insertCell().textContent = data.altitude;
     row.insertCell().textContent = data.speed;
-    row.insertCell().textContent = data.angle;
+    // row.insertCell().textContent = data.angle;
     row.insertCell().textContent = data.satellites;
-    row.insertCell().textContent = data.fixType;
-    row.insertCell().textContent = data.timeStamp;
+    // row.insertCell().textContent = data.fixType;
+    // row.insertCell().textContent = data.timeStamp;
+
+
+
 }
 </script>
