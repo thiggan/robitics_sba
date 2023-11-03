@@ -142,9 +142,9 @@ const { href, title, body } = Astro.props;
   }
 
 
-  function addPinsFromService() {
-    // await fetch("https://samples.azuremaps.com/api/GetBingMapsKey").then(r => r.text()).then(key => { return key });
-    alert("HI");
+  async function addPinsFromService() {
+    let blob = await fetch("https://localhost:7009/api/gps").then(r => r.text()).then(key => { return key });
+    console.log(blob);
   }
 
   // Dynamic load the Bing Maps Key and Script
