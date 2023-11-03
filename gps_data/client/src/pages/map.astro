@@ -2,6 +2,7 @@
 import Layout from "../layouts/MapLayout.astro";
 import Card from "../components/Card.astro";
 import BingMap from "../components/BingMap.astro"
+import DataLogger from "../components/DataLogger.astro"
 ---
 
 <Layout title="Map Data.">
@@ -10,6 +11,7 @@ import BingMap from "../components/BingMap.astro"
     <p>
       This will contain the data from the GPS 
     </p>
+    <DataLogger/>
   </div>
   <div slot="right">
     <h3>Map showing GPS Points</h3>

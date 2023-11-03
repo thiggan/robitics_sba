@@ -1,0 +1,62 @@
+---
+interface Props {
+  title: string;
+  body: string;
+  href: string;
+}
+
+const { href, title, body } = Astro.props;
+---
+
+<div
+  id="myData"
+  style="position:relative;width:100%;min-width:290px;height:600px;background-color:lightgray"
+>
+  <table id="data-table">
+    <thead>
+      <tr>
+        <th>Latitude</th>
+        <th>Longitude</th>
+        <th>Altitude</th>
+        <th>Speed</th>
+        <th>Angle</th>
+        <th>Satellites</th>
+        <th>Fix Type</th>
+        <th>Timestamp</th>
+      </tr>
+    </thead>
+    <tbody id="table-body">
+      <!-- Data will be added here dynamically -->
+    </tbody>
+  </table>
+</div>
+
+<div>
+  <button onclick="
+  getGpsData()
+  ">Data Logs</button>
+</div>
+
+<script is:inline>
+async function getGpsData() {
+    let data = await fetch("https://localhost:7009/api/gps")
+        .then((r) => r.json())
+        .then((key) => {
+            return key;
+        });
+    // console.log(data);
+
+    var tableBody = document.getElementById("table-body");
+    var row = tableBody.insertRow();
+
+    // Populate cells with JSON data
+    row.insertCell().textContent = data.latitude;
+    row.insertCell().textContent = data.longitude;
+    row.insertCell().textContent = data.altitude;
+    row.insertCell().textContent = data.speed;
+    row.insertCell().textContent = data.angle;
+    row.insertCell().textContent = data.satellites;
+    row.insertCell().textContent = data.fixType;
+    row.insertCell().textContent = data.timeStamp;
+}
+</script>
