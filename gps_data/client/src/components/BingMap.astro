@@ -20,6 +20,12 @@ const { href, title, body } = Astro.props;
 ">add more</button>
 </div>
 
+<div>
+  <button onclick="
+  addPinsFromService()
+  ">GPS Track</button>
+</div>
+
 <script is:inline>
   var map, infobox, tooltip;
   var tooltipTemplate =
@@ -133,6 +139,12 @@ const { href, title, body } = Astro.props;
       //Add pushpin to the map.
       map.entities.push(pin);
     }
+  }
+
+
+  function addPinsFromService() {
+    // await fetch("https://samples.azuremaps.com/api/GetBingMapsKey").then(r => r.text()).then(key => { return key });
+    alert("HI");
   }
 
   // Dynamic load the Bing Maps Key and Script
