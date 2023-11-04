@@ -36,10 +36,10 @@ public record Gps(double Latitude, double Longitude, double Altitude, double spe
         // this is tempoary untill i figure out how to connect this to a com-port
         // and return the data we get from the hardware.
 
-        var lat1 = -45.83263923190547;
-        var lon1 = 170.3443013870225;
-        var lat2 = -45.93182383670917;
-        var lon2 = 170.3443013870225;
+        var lat1 = -45.592785; 
+        var lon1 = 169.663514;
+        var lat2 = -46.047783;
+        var lon2 = 171.180190;
 
         var r = new Random();
 
