@@ -39,7 +39,7 @@ const { title } = Astro.props;
         This should take up the other half of the space
       </aside>
 
-      <footer class="colophon grid">
+      <footer class="footer grid">
         <aside>
           Tracy Awesomesauce
         </aside>
@@ -116,7 +116,7 @@ Typography
     select,
     textarea {
       color: #404040;
-      font-family: "Helvetica", Arial, sans-serif;
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
       font-size: 18px;
       line-height: 1.5;
     }
@@ -184,18 +184,18 @@ General styles
 	}
 
 
-    .colophon {
+    .footer {
       padding: 2em;
       background: #3e454c;
       color: white;
     }
 
-    .colophon a {
+    .footer a {
       color: white;
     }
 
-    .colophon a:hover,
-    .colophon a:focus {
+    .footer a:hover,
+    .footer a:focus {
       border-bottom: 1px solid white;
     }
 
@@ -222,7 +222,7 @@ CSS Grid layout for wider screens, when browser supports grid:
         }
 
         .heading,
-        .colophon {
+        .footer {
           grid-column: span 8;
 		 
         }
