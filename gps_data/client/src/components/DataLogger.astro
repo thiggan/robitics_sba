@@ -87,8 +87,8 @@ async function getGpsData() {
     
 
     // Populate cells with JSON data
-    row.insertCell().textContent = data.latitude.tofixed(2);
-    row.insertCell().textContent = data.longitude.tofixed(2);
+    row.insertCell().textContent = formatNumber(data.latitude);
+    row.insertCell().textContent = formatNumber(data.longitude);
     row.insertCell().textContent = data.altitude;
     row.insertCell().textContent = data.speed;
     // row.insertCell().textContent = data.angle;
@@ -98,5 +98,9 @@ async function getGpsData() {
 
 
 
+}
+
+function formatNumber(x) {
+  return Number.parseFloat(x).toFixed(3);
 }
 </script>
