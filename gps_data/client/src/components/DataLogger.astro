@@ -58,8 +58,11 @@ const { href, title, body } = Astro.props;
 
 
 #table-data {
-    background-color: #f2f2f2;
+    background-color: black;
+    color: white;
     text-align: center;
+
+
 
 }
 
@@ -84,8 +87,8 @@ async function getGpsData() {
     
 
     // Populate cells with JSON data
-    row.insertCell().textContent = data.latitude;
-    row.insertCell().textContent = data.longitude;
+    row.insertCell().textContent = data.latitude.tofixed(2);
+    row.insertCell().textContent = data.longitude.tofixed(2);
     row.insertCell().textContent = data.altitude;
     row.insertCell().textContent = data.speed;
     // row.insertCell().textContent = data.angle;
