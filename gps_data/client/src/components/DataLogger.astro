@@ -20,7 +20,7 @@ const { href, title, body } = Astro.props;
         <!-- <th>Angle</th> -->
         <th>Satellites</th>
         <!-- <th>Fix Type</th> -->
-        <!-- <th>Timestamp</th> -->
+        <th>Timestamp</th>
       </tr>
     </thead>
     <tbody id="table-data">
@@ -97,7 +97,15 @@ const { href, title, body } = Astro.props;
     // row.insertCell().textContent = data.angle;
     row.insertCell().textContent = data.satellites;
     // row.insertCell().textContent = data.fixType;
-    // row.insertCell().textContent = data.timeStamp;
+    row.insertCell().textContent = data.timeStamp.toLocaleString('EN-NZ', { timeZone: 'UTC' });
+    // row.insertCell().textContent = new Intl.DateTimeFormat("default", options).format(data.timeStamp);
+
+    // if(tableBody.rows.length > 10)
+    var table = document.getElementById("table-header");
+    if(table.tBodies[0].rows.length > 8)
+    {
+      table.deleteRow(1);
+    }
   }
 
   function formatNumber(x) {

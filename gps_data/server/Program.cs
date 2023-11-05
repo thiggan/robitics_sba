@@ -131,13 +131,14 @@ public class GpsReader
             Current = new FixInformation()
             {
                 Message = err.err,
-                TimeStamp = DateTime.UtcNow
+                TimeStamp = DateTime.Now
             };
             HasError = true;
         }
         else if(data.Contains("latitude"))
         {
             var fix = JsonSerializer.Deserialize<FixInformation>(data);
+            fix.TimeStamp = DateTime.Now;
             fix.Message = "fix";
             Current = fix;
             HasError = false;
@@ -147,7 +148,7 @@ public class GpsReader
             Current = Current = new FixInformation()
             {
                 Message = "unable to process fix information",
-                TimeStamp = DateTime.UtcNow
+                TimeStamp = DateTime.Now
             };
             HasError = true;
         }
