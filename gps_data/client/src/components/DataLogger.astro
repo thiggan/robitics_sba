@@ -8,12 +8,11 @@ interface Props {
 const { href, title, body } = Astro.props;
 ---
 
-<div
-  id="myData"
->
+<div id="myData">
   <table id="table-header">
     <thead>
       <tr>
+        <th>Message</th>
         <th>Latitude</th>
         <th>Longitude</th>
         <th>Altitude</th>
@@ -36,56 +35,60 @@ const { href, title, body } = Astro.props;
   ">log from service</button>
 </div>
 
-
-
+<div>
+  <button onclick="
+  addLogsFromService_automatically()
+  ">auto</button>
+</div>
+<div>
+  <button onclick="
+  addLogsFromService_automatically_clear()
+  "
+    >auto - stop</button
+  >
+</div>
 
 <style>
-/* Style for the table */
-#table-header {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 20px;
-}
+  /* Style for the table */
+  #table-header {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
 
-/* Style for table header */
-#table-header th {
-  background-color: #f2f2f2;
-  font-weight: bold;
-  text-align: center;
-  padding: 10px;
-  border: 1px solid #ccc;
-}
+  /* Style for table header */
+  #table-header th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #ccc;
+  }
 
-
-#table-data {
+  #table-data {
     background-color: black;
     color: white;
     text-align: center;
+  }
 
-
-
-}
-
-#table-data:hover{
+  #table-data:hover {
     background-color: gray;
-}
-
-
+  }
 </style>
 
 <script is:inline>
-async function getGpsData() {
+  async function getGpsData() {
     let data = await fetch("https://localhost:7009/api/gps")
-        .then((r) => r.json())
-        .then((key) => {
-            return key;
-        });
-    // console.log(data);
+      .then((r) => r.json())
+      .then((key) => {
+        return key;
+      });
+    console.log(data);
 
     var tableBody = document.getElementById("table-data");
     var row = tableBody.insertRow();
-    
 
+    row.insertCell().textContent = data.message;
     // Populate cells with JSON data
     row.insertCell().textContent = formatNumber(data.latitude);
     row.insertCell().textContent = formatNumber(data.longitude);
@@ -95,12 +98,19 @@ async function getGpsData() {
     row.insertCell().textContent = data.satellites;
     // row.insertCell().textContent = data.fixType;
     // row.insertCell().textContent = data.timeStamp;
+  }
 
+  function formatNumber(x) {
+    return Number.parseFloat(x).toFixed(5);
+  }
 
-
-}
-
-function formatNumber(x) {
-  return Number.parseFloat(x).toFixed(3);
-}
+  let logger_intervalId = 0;
+  async function addLogsFromService_automatically() {
+    logger_intervalId = setInterval(async () => {
+      await getGpsData();
+    }, 1000);
+  }
+  async function addLogsFromService_automatically_clear() {
+    clearInterval(logger_intervalId);
+  }
 </script>

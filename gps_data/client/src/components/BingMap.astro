@@ -26,6 +26,17 @@ const { href, title, body } = Astro.props;
   ">pin from service</button>
 </div>
 
+<div>
+  <button onclick="
+  addPinsFromService_automatically()
+  ">auto</button>
+</div>
+<div>
+  <button onclick="
+  addPinsFromService_automatically_clear()
+  ">auto - stop</button>
+</div>
+
 <script is:inline>
 var map, infobox, tooltip;
 var tooltipTemplate =
@@ -141,6 +152,18 @@ function addMorePins() {
   }
 }
 
+let intervalId = 0;
+async function addPinsFromService_automatically()
+{
+  intervalId = setInterval(async () => {
+      await addPinsFromService();
+    }, 1000);
+}
+async function addPinsFromService_automatically_clear()
+{
+  clearInterval(intervalId);
+}
+
 async function addPinsFromService() {
   let blob = await fetch("https://localhost:7009/api/gps")
     .then((r) => r.json())
@@ -149,7 +172,8 @@ async function addPinsFromService() {
     });
   console.log(blob);
 
-  var loc = new Microsoft.Maps.Location(
+  if(blob.message === "fix") {
+    var loc = new Microsoft.Maps.Location(
     blob.latitude,
     blob.longitude
   );
@@ -160,6 +184,10 @@ async function addPinsFromService() {
 
   //Center the map on the user's location.
   map.setView({ center: loc, zoom: 8 });
+  } else {
+    console.log("unable to generate pin because see log", blob);
+  }
+
 }
 
 // Dynamic load the Bing Maps Key and Script
