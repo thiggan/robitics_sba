@@ -1,3 +1,6 @@
+using System.IO.Ports;
+using System.Text.Json;
+
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,7 +16,8 @@ builder.Services.AddCors(options =>
                       });
 });
 builder.Services.AddHostedService<DevicePullerBackgroundTask>();
-builder.Services.AddSingleton<Store>(new Store());
+builder.Services.AddSingleton(new Store());
+builder.Services.AddSingleton(new GpsReader());
 
 var app = builder.Build();
 
@@ -28,9 +32,19 @@ app.MapGet("/api/gps", async (Store store) =>
 
 app.Run();
 
-public record Gps(double Latitude, double Longitude, double Altitude, double speed, double Angle, double Satellites, string FixType, DateTime TimeStamp)
+public record FixInformation
 {
-    public static Gps Random()
+    public string Message { get; set; }
+    public double Latitude { get; set; }
+    public double Longitude { get; set; }
+    public double Altitude { get; set; }
+    public double Speed { get; set; }
+    public double Angle { get; set; }
+    public double Satellites { get; set; }
+    public DateTime TimeStamp { get; set; }
+
+
+    public static FixInformation Random()
     {
         // generate a random gps within a pretend rectangle over 'greater dunedin'
         // this is tempoary untill i figure out how to connect this to a com-port
@@ -46,23 +60,40 @@ public record Gps(double Latitude, double Longitude, double Altitude, double spe
         var randomLat = r.NextDouble() * (Math.Max(lat1, lat2) - Math.Min(lat1, lat2)) + Math.Min(lat1, lat2);
         var randomLon = r.NextDouble() * (Math.Max(lon1, lon2) - Math.Min(lon1, lon2)) + Math.Min(lon1, lon2);
 
-        return new Gps(randomLat, randomLon, r.Next(-20, 200), r.Next(0, 100), r.Next(0, 364), r.Next(0, 20), "todo", DateTime.UtcNow);
+        return new FixInformation()
+        {
+            Message = "fix",
+            Latitude = randomLat,
+            Longitude = randomLon,
+            Altitude = r.Next(-20, 200),
+            Speed = r.Next(0, 100),
+            Angle = r.Next(0, 364),
+            Satellites = r.Next(0, 20),
+            TimeStamp = DateTime.UtcNow
+        };
     }
+}
+public class GpsError
+{
+    public string err { get; set; }
 }
 
 public class Store
 {
-    public Gps Current { get; set; }
+    public FixInformation Current { get; set; }
 }
 
 public class DevicePullerBackgroundTask : BackgroundService
 {
     readonly TimeSpan _period = TimeSpan.FromSeconds(1);
     private readonly Store store;
+    private readonly GpsReader reader;
 
-    public DevicePullerBackgroundTask(Store store)
+    public DevicePullerBackgroundTask(Store store, GpsReader reader)
     {
         this.store = store;
+        this.reader = reader;
+        this.reader.Start();
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -71,7 +102,66 @@ public class DevicePullerBackgroundTask : BackgroundService
         while(! stoppingToken.IsCancellationRequested
             && await timer.WaitForNextTickAsync(stoppingToken))
         {
-            store.Current = Gps.Random();
+            //store.Current = FixInformation.Random();
+            store.Current = reader.Current;
         }
     }
+}
+
+public class GpsReader
+{
+    SerialPort port = null;
+
+    public void Start()
+    {
+        port = new SerialPort("COM7", 9600);
+        port.Handshake = Handshake.None;
+        port.ReadTimeout = (int)TimeSpan.FromSeconds(10).Ticks;
+        port.DataReceived += Port_DataReceived;
+        port.Open();
+    }
+
+    private void Port_DataReceived(object sender, SerialDataReceivedEventArgs e)
+    {
+        var data = port.ReadLine();
+
+        if (data.Contains("err"))
+        {
+            var err = JsonSerializer.Deserialize<GpsError>(data);
+            Current = new FixInformation()
+            {
+                Message = err.err,
+                TimeStamp = DateTime.UtcNow
+            };
+            HasError = true;
+        }
+        else if(data.Contains("latitude"))
+        {
+            var fix = JsonSerializer.Deserialize<FixInformation>(data);
+            fix.Message = "fix";
+            Current = fix;
+            HasError = false;
+        }
+        else 
+        {
+            Current = Current = new FixInformation()
+            {
+                Message = "unable to process fix information",
+                TimeStamp = DateTime.UtcNow
+            };
+            HasError = true;
+        }
+    }
+
+    public void Stop()
+    {
+        if (port != null)
+        {
+            port.Dispose();
+            port = null;
+        }
+    }
+
+    public FixInformation Current { get; private set; }
+    public bool HasError { get; private set; }
 }
