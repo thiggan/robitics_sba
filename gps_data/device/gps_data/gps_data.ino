@@ -15,7 +15,7 @@ void setup()
 
 void loop()
 {
-  String ptr = "{";
+  String ptr = "{ ";
 
   char c = GPS.read();
   if (GPS.newNMEAreceived())
@@ -24,20 +24,20 @@ void loop()
     {
       if (GPS.fix)
       {
-        ptr += "\t'latitude':"; ptr += GPS.latitudeDegrees; ptr += ",\r";
-        ptr += "\t'longitude':"; ptr += GPS.longitudeDegrees; ptr += ",\r";
-        ptr += "\t'altitude':"; ptr += GPS.altitude; ptr += ",\r";
-        ptr += "\t'speed':"; ptr += GPS.speed; ptr += ",\r";
-        ptr += "\t'angle':"; ptr += GPS.angle; ptr += ",\r";
-        ptr += "\t'satellites':"; ptr += GPS.satellites; ptr += ",\r";
-        ptr += "\t'fixType':"; ptr += GPS.fix; ptr += ",\r";
-        ptr += "\t'fixTypeText':'"; ptr += GPS.fix == 3 ? "3D Fix" : (GPS.fix == 2 ? "2D Fix" : "No Fix"); ptr += "',\r";
-        ptr += "\t'year':"; ptr += GPS.year; ptr += ",\r";
-        ptr += "\t'month':"; ptr += GPS.month; ptr += ",\r";
-        ptr += "\t'day':"; ptr += GPS.day; ptr += ",\r";
-        ptr += "\t'hour':"; ptr += GPS.hour; ptr += ",\r";
-        ptr += "\t'minute':"; ptr += GPS.minute; ptr += ",\r";
-        ptr += "\t'seconds':"; ptr += GPS.seconds; ptr += "\r";
+        ptr += "\"latitude\":"; ptr += GPS.latitudeDegrees; ptr += ", ";
+        ptr += "\"longitude\":"; ptr += GPS.longitudeDegrees; ptr += ", ";
+        ptr += "\"altitude\":"; ptr += GPS.altitude; ptr += ", ";
+        ptr += "\"speed\":"; ptr += GPS.speed; ptr += ", ";
+        ptr += "\"angle\":"; ptr += GPS.angle; ptr += ", ";
+        ptr += "\"satellites\":"; ptr += GPS.satellites; ptr += ", ";
+        ptr += "\"fixType\":"; ptr += GPS.fix; ptr += ", ";
+        ptr += "\"fixTypeText\":\""; ptr += GPS.fix == 3 ? "3D Fix" : (GPS.fix == 2 ? "2D Fix" : "No Fix"); ptr += "\", ";
+        ptr += "\"year\":"; ptr += GPS.year; ptr += ", ";
+        ptr += "\"month\":"; ptr += GPS.month; ptr += ", ";
+        ptr += "\"day\":"; ptr += GPS.day; ptr += ", ";
+        ptr += "\"hour\":"; ptr += GPS.hour; ptr += ", ";
+        ptr += "\"minute\":"; ptr += GPS.minute; ptr += ", ";
+        ptr += "\"seconds\":"; ptr += GPS.seconds; ptr += " ";
 
         // Serial.print("Latitude: "); Serial.println(latitude, 6);
         // Serial.print("Longitude: "); Serial.println(longitude, 6);
@@ -51,20 +51,20 @@ void loop()
       }
       else
       {
-        ptr += "'err':{ 'msg':'no gps fix ' }\r";
+        ptr += "\"err\":\"no gps fix\" ";
       }
     }
     else
     {
-      ptr += "'err':{ 'msg':'no last NMEA' }\r";
+      ptr += "\"err\":\"no last NMEA\" ";
     }
   }
   else
   {
-    ptr += "'err':{ 'msg':'no new NMEA Recieved' }\r";
+    ptr += "\"err\":\"no new NMEA Recieved\" ";
   }
-  ptr += "}\n";
+  ptr += "}";
 
   Serial.println(ptr);
-  delay(1000);
+  delay(500);
 }
