@@ -17,10 +17,10 @@ const { href, title, body } = Astro.props;
         <th>Longitude</th>
         <th>Altitude</th>
         <th>Speed</th>
-        <!-- <th>Angle</th> -->
+        <th>Angle</th>
         <th>Satellites</th>
         <!-- <th>Fix Type</th> -->
-        <th>Timestamp</th>
+        <!-- <th>Timestamp</th> -->
       </tr>
     </thead>
     <tbody id="table-data">
@@ -94,10 +94,10 @@ const { href, title, body } = Astro.props;
     row.insertCell().textContent = formatNumber(data.longitude);
     row.insertCell().textContent = data.altitude;
     row.insertCell().textContent = data.speed;
-    // row.insertCell().textContent = data.angle;
+    row.insertCell().textContent = data.angle;
     row.insertCell().textContent = data.satellites;
     // row.insertCell().textContent = data.fixType;
-    row.insertCell().textContent = data.timeStamp.toLocaleString('EN-NZ', { timeZone: 'UTC' });
+    // row.insertCell().textContent = data.timestamp.toLocaleString('EN-NZ', { timeZone: 'UTC' });
     // row.insertCell().textContent = new Intl.DateTimeFormat("default", options).format(data.timeStamp);
 
     // if(tableBody.rows.length > 10)

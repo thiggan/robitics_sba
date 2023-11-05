@@ -1,5 +1,7 @@
+using System.Globalization;
 using System.IO.Ports;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -32,16 +34,19 @@ app.MapGet("/api/gps", async (Store store) =>
 
 app.Run();
 
-public record FixInformation
+public class FixInformation
 {
-    public string Message { get; set; }
-    public double Latitude { get; set; }
-    public double Longitude { get; set; }
-    public double Altitude { get; set; }
-    public double Speed { get; set; }
-    public double Angle { get; set; }
-    public double Satellites { get; set; }
-    public DateTime TimeStamp { get; set; }
+    [JsonPropertyName("message")] public string Message { get; set; }
+    [JsonPropertyName("latitude")] public double Latitude { get; set; }
+    [JsonPropertyName("longitude")] public double Longitude { get; set; }
+    [JsonPropertyName("altitude")] public double Altitude { get; set; }
+    [JsonPropertyName("speed")] public double Speed { get; set; }
+    [JsonPropertyName("angle")] public double Angle { get; set; }
+    [JsonPropertyName("fix")] public int Fix { get; set; }
+    [JsonPropertyName("fixquality")] public int FixQuality { get; set; }
+    [JsonPropertyName("satellites")] public int Satellites { get; set; }
+    [JsonPropertyName("antenna")] public int Antenna { get; set; }
+    [JsonPropertyName("timestamp")] public string TimeStamp { get; set; }
 
 
     public static FixInformation Random()
@@ -69,7 +74,6 @@ public record FixInformation
             Speed = r.Next(0, 100),
             Angle = r.Next(0, 364),
             Satellites = r.Next(0, 20),
-            TimeStamp = DateTime.UtcNow
         };
     }
 }
@@ -85,7 +89,7 @@ public class Store
 
 public class DevicePullerBackgroundTask : BackgroundService
 {
-    readonly TimeSpan _period = TimeSpan.FromSeconds(1);
+    readonly TimeSpan _period = TimeSpan.FromSeconds(5);
     private readonly Store store;
     private readonly GpsReader reader;
 
@@ -103,6 +107,8 @@ public class DevicePullerBackgroundTask : BackgroundService
             && await timer.WaitForNextTickAsync(stoppingToken))
         {
             //store.Current = FixInformation.Random();
+            var x = JsonSerializer.Serialize(FixInformation.Random());
+
             store.Current = reader.Current;
         }
     }
@@ -114,7 +120,7 @@ public class GpsReader
 
     public void Start()
     {
-        port = new SerialPort("COM7", 9600);
+        port = new SerialPort("COM7", 115200);
         port.Handshake = Handshake.None;
         port.ReadTimeout = (int)TimeSpan.FromSeconds(10).Ticks;
         port.DataReceived += Port_DataReceived;
@@ -130,15 +136,14 @@ public class GpsReader
             var err = JsonSerializer.Deserialize<GpsError>(data);
             Current = new FixInformation()
             {
-                Message = err.err,
-                TimeStamp = DateTime.Now
+                Message = err.err
             };
             HasError = true;
         }
         else if(data.Contains("latitude"))
         {
+            
             var fix = JsonSerializer.Deserialize<FixInformation>(data);
-            fix.TimeStamp = DateTime.Now;
             fix.Message = "fix";
             Current = fix;
             HasError = false;
@@ -147,8 +152,7 @@ public class GpsReader
         {
             Current = Current = new FixInformation()
             {
-                Message = "unable to process fix information",
-                TimeStamp = DateTime.Now
+                Message = "unable to process fix information"
             };
             HasError = true;
         }
